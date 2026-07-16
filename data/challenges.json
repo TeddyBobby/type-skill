@@ -1,0 +1,2697 @@
+[
+  {
+    "id": "2",
+    "dirname": "00002-medium-return-type",
+    "title": "Get Return Type",
+    "titleCN": "Get Return Type",
+    "difficulty": "medium",
+    "tags": [
+      "infer",
+      "built-in"
+    ],
+    "description": "不使用 `ReturnType` 实现 TypeScript 的 `ReturnType<T>` 泛型。",
+    "example": "",
+    "solutionCode": "type MyReturnType<T> = T extends (...args: any[]) => infer R ? R : never",
+    "solutionExplanation": "1. 约束 T 为函数类型\n2. 用 `infer R` 推断返回值类型\n3. 返回 R\n\n`infer` 只能在条件类型的 extends 子句中使用。"
+  },
+  {
+    "id": "3",
+    "dirname": "00003-medium-omit",
+    "title": "Omit",
+    "titleCN": "Omit",
+    "difficulty": "medium",
+    "tags": [
+      "union",
+      "built-in"
+    ],
+    "description": "不使用 `Omit` 实现 TypeScript 的 `Omit<T, K>` 泛型。",
+    "example": "",
+    "solutionCode": "type MyOmit<T, K extends keyof T> = { [P in Exclude<keyof T, K>]: T[P] }",
+    "solutionExplanation": "1. `Exclude<keyof T, K>` 排除要删除的属性\n2. 对剩余属性做映射\n\n另一种写法（as 子句）：`{ [P in keyof T as P extends K ? never : P]: T[P] }`"
+  },
+  {
+    "id": "4",
+    "dirname": "00004-easy-pick",
+    "title": "Pick",
+    "titleCN": "Pick",
+    "difficulty": "easy",
+    "tags": [
+      "union",
+      "built-in"
+    ],
+    "description": "不使用 `Pick<T, K>` ，实现 TS 内置的 `Pick<T, K>` 的功能。",
+    "example": "",
+    "solutionCode": "type MyPick<T, K extends keyof T> = { [P in K]: T[P] }",
+    "solutionExplanation": "1. `K extends keyof T` 约束 K 必须是 T 的属性\n2. `[P in K]` 映射遍历 K 中的每个属性\n3. `T[P]` 取出原始类型中对应属性的类型"
+  },
+  {
+    "id": "5",
+    "dirname": "00005-extreme-readonly-keys",
+    "title": "Get Readonly Keys",
+    "titleCN": "Get Readonly Keys",
+    "difficulty": "extreme",
+    "tags": [
+      "utils",
+      "object-keys"
+    ],
+    "description": "实现泛型`GetReadonlyKeys<T>`，`GetReadonlyKeys<T>`返回由对象 T 所有只读属性的键组成的联合类型。",
+    "example": "",
+    "solutionCode": "type GetReadonlyKeys<T> = { [K in keyof T]-?: Equal<{ -readonly [P in K]: T[K] }, { [P in K]: T[P] }> extends true ? never : K }[keyof T]",
+    "solutionExplanation": "1. 遍历 T 的所有属性\n2. 比较去掉 readonly 后的类型和原类型\n3. 如果不同则说明该属性是 readonly\n4. 用 `[keyof T]` 提取出联合类型"
+  },
+  {
+    "id": "6",
+    "dirname": "00006-hard-simple-vue",
+    "title": "Simple Vue",
+    "titleCN": "Simple Vue",
+    "difficulty": "hard",
+    "tags": [
+      "this",
+      "application",
+      "vue"
+    ],
+    "description": "实现类似Vue的类型支持的简化版本。",
+    "example": "",
+    "solutionCode": "type SimpleVue<D, C, M> = { new(): { [K in keyof D | keyof C | keyof M]: K extends keyof D ? D[K] : K extends keyof M ? M[K] : K extends keyof C ? (C[K] & ThisType<D & M & { [P in keyof C]: C[P] extends (...args: any[]) => infer R ? R : never }>) : never } }",
+    "solutionExplanation": "1. 合并 data(D)、computed(C)、methods(M)\n2. data 属性直接映射\n3. computed 属性映射为函数返回值\n4. methods 映射为原始类型\n5. 用 ThisType 绑定 this"
+  },
+  {
+    "id": "7",
+    "dirname": "00007-easy-readonly",
+    "title": "Readonly",
+    "titleCN": "Readonly",
+    "difficulty": "easy",
+    "tags": [
+      "built-in",
+      "readonly",
+      "object-keys"
+    ],
+    "description": "不要使用内置的`Readonly<T>`，自己实现一个。",
+    "example": "",
+    "solutionCode": "type MyReadonly<T> = { readonly [P in keyof T]: T[P] }",
+    "solutionExplanation": "1. `keyof T` 获取所有属性名\n2. `[P in keyof T]` 映射遍历\n3. 每个属性前加 `readonly` 修饰符"
+  },
+  {
+    "id": "8",
+    "dirname": "00008-medium-readonly-2",
+    "title": "Readonly 2",
+    "titleCN": "Readonly 2",
+    "difficulty": "medium",
+    "tags": [
+      "readonly",
+      "object-keys"
+    ],
+    "description": "实现一个泛型`MyReadonly2<T, K>`，它带有两种类型的参数`T`和`K`。",
+    "example": "",
+    "solutionCode": "type MyReadonly2<T, K extends keyof T = keyof T> = { readonly [P in K]: T[P] } & { [P in Exclude<keyof T, K>]: T[P] }",
+    "solutionExplanation": "1. 分两部分用 `&` 合并\n2. K 中的属性 → 加 readonly\n3. 其余属性 → 保持原样\n4. K 默认值是 `keyof T`"
+  },
+  {
+    "id": "9",
+    "dirname": "00009-medium-deep-readonly",
+    "title": "Deep Readonly",
+    "titleCN": "Deep Readonly",
+    "difficulty": "medium",
+    "tags": [
+      "readonly",
+      "object-keys",
+      "deep"
+    ],
+    "description": "实现一个泛型 `DeepReadonly<T>`，它将对象的每个参数及其子对象递归地设为只读。",
+    "example": "",
+    "solutionCode": "type DeepReadonly<T> = { readonly [P in keyof T]: T[P] extends Function ? T[P] : T[P] extends object ? DeepReadonly<T[P]> : T[P] }",
+    "solutionExplanation": "1. 所有属性加 `readonly`\n2. 函数类型 → 保持原样\n3. 对象类型 → 递归 DeepReadonly\n4. 基本类型 → 保持原样"
+  },
+  {
+    "id": "10",
+    "dirname": "00010-medium-tuple-to-union",
+    "title": "Tuple to Union",
+    "titleCN": "Tuple to Union",
+    "difficulty": "medium",
+    "tags": [
+      "infer",
+      "tuple",
+      "union"
+    ],
+    "description": "实现泛型`TupleToUnion<T>`，它返回元组所有值的合集。",
+    "example": "",
+    "solutionCode": "type TupleToUnion<T extends readonly any[]> = T[number]",
+    "solutionExplanation": "`T[number]` 索引访问——用 `number` 索引数组/元组类型，得到所有元素的联合类型。"
+  },
+  {
+    "id": "11",
+    "dirname": "00011-easy-tuple-to-object",
+    "title": "Tuple to Object",
+    "titleCN": "Tuple to Object",
+    "difficulty": "easy",
+    "tags": [
+      "object-keys"
+    ],
+    "description": "将一个元组类型转换为对象类型，这个对象类型的键/值和元组中的元素对应。",
+    "example": "",
+    "solutionCode": "type TupleToObject<T extends readonly (string | number | symbol)[]> = { [P in T[number]]: P }",
+    "solutionExplanation": "1. `T[number]` 获取所有元素的联合类型\n2. 遍历每个元素作为键和值"
+  },
+  {
+    "id": "12",
+    "dirname": "00012-medium-chainable-options",
+    "title": "Chainable Options",
+    "titleCN": "Chainable Options",
+    "difficulty": "medium",
+    "tags": [
+      "application"
+    ],
+    "description": "在 JavaScript 中我们经常会使用可串联（Chainable/Pipeline）的函数构造一个对象，但在 TypeScript 中，你能合理的给它赋上类型吗？",
+    "example": "",
+    "solutionCode": "type Chainable<T = {}> = { option<K extends string, V>(key: K extends keyof T ? never : K, value: V): Chainable<Omit<T, K> & Record<K, V>>; get(): T }",
+    "solutionExplanation": "1. option 返回新的 Chainable\n2. `Omit<T, K>` 先移除同名 key（防止重复）\n3. `& Record<K, V>` 添加新 key\n4. get() 返回累积的 T"
+  },
+  {
+    "id": "13",
+    "dirname": "00013-warm-hello-world",
+    "title": "Hello World",
+    "titleCN": "Hello World",
+    "difficulty": "warm",
+    "tags": [],
+    "description": "Hello, World!",
+    "example": "",
+    "solutionCode": "type HelloWorld = string",
+    "solutionExplanation": "直接将 `HelloWorld` 赋值为 `string` 类型。"
+  },
+  {
+    "id": "14",
+    "dirname": "00014-easy-first",
+    "title": "First of Array",
+    "titleCN": "First of Array",
+    "difficulty": "easy",
+    "tags": [
+      "array"
+    ],
+    "description": "实现一个`First<T>`泛型，它接受一个数组`T`并返回它的第一个元素的类型。",
+    "example": "",
+    "solutionCode": "type First<T extends any[]> = T extends [] ? never : T[0]",
+    "solutionExplanation": "1. 空数组检查 → 返回 never\n2. 否则取 `T[0]`\n\n也可以用 `T extends [infer F, ...any[]] ? F : never`"
+  },
+  {
+    "id": "15",
+    "dirname": "00015-medium-last",
+    "title": "Last of Array",
+    "titleCN": "Last of Array",
+    "difficulty": "medium",
+    "tags": [
+      "array"
+    ],
+    "description": "在此挑战中建议使用TypeScript 4.0",
+    "example": "",
+    "solutionCode": "type Last<T extends any[]> = T extends [...any[], infer L] ? L : never",
+    "solutionExplanation": "用可变元组 `[...any[], infer L]` 匹配除最后一个之外的所有元素，infer 推断最后一个。"
+  },
+  {
+    "id": "16",
+    "dirname": "00016-medium-pop",
+    "title": "Pop",
+    "titleCN": "Pop",
+    "difficulty": "medium",
+    "tags": [
+      "array"
+    ],
+    "description": "在此挑战中建议使用TypeScript 4.0",
+    "example": "",
+    "solutionCode": "type Pop<T extends any[]> = T extends [...infer Rest, any] ? Rest : never",
+    "solutionExplanation": "`[...infer Rest, any]` 推断除最后一个外的所有元素，丢弃最后一个。"
+  },
+  {
+    "id": "17",
+    "dirname": "00017-hard-currying-1",
+    "title": "Currying 1",
+    "titleCN": "Currying 1",
+    "difficulty": "hard",
+    "tags": [
+      "array"
+    ],
+    "description": "在此挑战中建议使用TypeScript 4.0",
+    "example": "",
+    "solutionCode": "type Currying<F> = F extends (...args: infer A) => infer R ? A extends [infer First, ...infer Rest] ? (arg: First) => Rest extends [] ? R : Currying<(...args: Rest) => R> : () => R : never",
+    "solutionExplanation": "1. 用 infer 提取参数和返回值\n2. 逐个取出第一个参数作为新函数参数\n3. 剩余参数递归 Currying\n4. 参数为空时直接返回 R"
+  },
+  {
+    "id": "18",
+    "dirname": "00018-easy-tuple-length",
+    "title": "Length of Tuple",
+    "titleCN": "Length of Tuple",
+    "difficulty": "easy",
+    "tags": [
+      "tuple"
+    ],
+    "description": "创建一个`Length`泛型，这个泛型接受一个只读的元组，返回这个元组的长度。",
+    "example": "",
+    "solutionCode": "type Length<T extends readonly any[]> = T['length']",
+    "solutionExplanation": "1. 约束 T 为只读数组\n2. `T['length']` 索引访问获取 length 属性\n3. TypeScript 元组的 length 是字面量类型"
+  },
+  {
+    "id": "20",
+    "dirname": "00020-medium-promise-all",
+    "title": "Promise.all",
+    "titleCN": "Promise.all",
+    "difficulty": "medium",
+    "tags": [
+      "array",
+      "promise"
+    ],
+    "description": "给函数`PromiseAll`指定类型，它接受元素为 Promise 或者类似 Promise 的对象的数组，返回值应为`Promise<T>`，其中`T`是这些 Promise 的结果组成的数组。",
+    "example": "",
+    "solutionCode": "declare function PromiseAll<T extends any[]>(values: readonly [...T]): Promise<{ [K in keyof T]: T[K] extends Promise<infer R> ? R : T[K] }>",
+    "solutionExplanation": "1. 遍历元组 T 的每个元素\n2. 如果是 Promise 则用 infer 提取内部类型\n3. 否则保持原类型\n4. 返回 Promise 包装的元组"
+  },
+  {
+    "id": "43",
+    "dirname": "00043-easy-exclude",
+    "title": "Exclude",
+    "titleCN": "Exclude",
+    "difficulty": "easy",
+    "tags": [
+      "built-in",
+      "union"
+    ],
+    "description": "实现内置的 `Exclude<T, U>` 类型，但不能直接使用它本身。",
+    "example": "",
+    "solutionCode": "type MyExclude<T, U> = T extends U ? never : T",
+    "solutionExplanation": "1. `T extends U ? never : T` 条件类型\n2. 对联合类型 T，条件类型自动分配\n3. 每个成员分别判断，能赋给 U 的变为 never\n4. never 在联合类型中被剔除"
+  },
+  {
+    "id": "55",
+    "dirname": "00055-hard-union-to-intersection",
+    "title": "Union to Intersection",
+    "titleCN": "Union to Intersection",
+    "difficulty": "hard",
+    "tags": [
+      "'utils",
+      "infer'"
+    ],
+    "description": "实现高级工具类型 `UnionToIntersection<U>`",
+    "example": "",
+    "solutionCode": "type UnionToIntersection<U> = (U extends any ? (k: U) => void : never) extends (k: infer I) => void ? I : never",
+    "solutionExplanation": "1. 利用联合类型的分配律\n2. 每个成员生成 `(k: U) => void` 函数类型\n3. 函数参数位置是逆变的，形成交叉类型\n4. 用 infer 提取交叉后的参数类型"
+  },
+  {
+    "id": "57",
+    "dirname": "00057-hard-get-required",
+    "title": "Get Required",
+    "titleCN": "Get Required",
+    "difficulty": "hard",
+    "tags": [
+      "utils",
+      "infer"
+    ],
+    "description": "实现高级工具类型 `GetRequired<T>`，该类型保留所有必需的属性",
+    "example": "",
+    "solutionCode": "",
+    "solutionExplanation": ""
+  },
+  {
+    "id": "59",
+    "dirname": "00059-hard-get-optional",
+    "title": "Get Optional",
+    "titleCN": "Get Optional",
+    "difficulty": "hard",
+    "tags": [
+      "utils",
+      "infer"
+    ],
+    "description": "实现高级工具类型 `GetOptional<T>`，该类型保留所有可选属性",
+    "example": "",
+    "solutionCode": "",
+    "solutionExplanation": ""
+  },
+  {
+    "id": "62",
+    "dirname": "00062-medium-type-lookup",
+    "title": "Type Lookup",
+    "titleCN": "Type Lookup",
+    "difficulty": "medium",
+    "tags": [
+      "'union",
+      "map'"
+    ],
+    "description": "有时，您可能希望根据某个属性在联合类型中查找类型。",
+    "example": "",
+    "solutionCode": "type LookUp<U extends { type: any }, T> = U extends { type: T } ? U : never",
+    "solutionExplanation": "1. 条件类型 + 联合类型分配律\n2. 对 U 的每个成员，检查 type 是否匹配 T\n3. 匹配的保留，不匹配的变为 never"
+  },
+  {
+    "id": "89",
+    "dirname": "00089-hard-required-keys",
+    "title": "Required Keys",
+    "titleCN": "Required Keys",
+    "difficulty": "hard",
+    "tags": [
+      "utils"
+    ],
+    "description": "实现高级工具类型 `RequiredKeys<T>`，该类型返回 T 中所有必需属性的键组成的一个联合类型。",
+    "example": "",
+    "solutionCode": "",
+    "solutionExplanation": ""
+  },
+  {
+    "id": "90",
+    "dirname": "00090-hard-optional-keys",
+    "title": "Optional Keys",
+    "titleCN": "Optional Keys",
+    "difficulty": "hard",
+    "tags": [
+      "utils"
+    ],
+    "description": "实现高级工具类型`OptionalKeys<T>`，该类型将 T 中所有可选属性的键合并为一个联合类型。",
+    "example": "",
+    "solutionCode": "",
+    "solutionExplanation": ""
+  },
+  {
+    "id": "106",
+    "dirname": "00106-medium-trimleft",
+    "title": "Trim Left",
+    "titleCN": "Trim Left",
+    "difficulty": "medium",
+    "tags": [
+      "template-literal"
+    ],
+    "description": "实现 `TrimLeft<T>` ，它接收确定的字符串类型并返回一个新的字符串，其中新返回的字符串删除了原字符串开头的空白字符串。",
+    "example": "",
+    "solutionCode": "type TrimLeft<S extends string> = S extends `${' ' | '\\n' | '\\t'}${infer R}` ? TrimLeft<R> : S",
+    "solutionExplanation": "1. 模板字面量类型匹配开头空白字符\n2. 用 infer 提取剩余部分\n3. 递归去除直到开头不是空白字符"
+  },
+  {
+    "id": "108",
+    "dirname": "00108-medium-trim",
+    "title": "Trim",
+    "titleCN": "Trim",
+    "difficulty": "medium",
+    "tags": [
+      "template-literal"
+    ],
+    "description": "实现`Trim<T>`，它接受一个明确的字符串类型，并返回一个新字符串，其中两端的空白符都已被删除。",
+    "example": "",
+    "solutionCode": "type Trim<S extends string> = S extends `${' ' | '\\n' | '\\t'}${infer R}` ? Trim<R> : S extends `${infer L}${' ' | '\\n' | '\\t'}` ? Trim<L> : S",
+    "solutionExplanation": "1. 先递归去除左侧空白\n2. 再递归去除右侧空白\n3. 直到两侧都不是空白字符"
+  },
+  {
+    "id": "110",
+    "dirname": "00110-medium-capitalize",
+    "title": "Capitalize",
+    "titleCN": "Capitalize",
+    "difficulty": "medium",
+    "tags": [
+      "template-literal"
+    ],
+    "description": "实现 `Capitalize<T>` 它将字符串的第一个字母转换为大写，其余字母保持原样。",
+    "example": "",
+    "solutionCode": "type MyCapitalize<S extends string> = S extends `${infer F}${infer R}` ? `${Uppercase<F>}${R}` : S",
+    "solutionExplanation": "1. 用模板字面量拆分首字符 F 和剩余 R\n2. 用内置 `Uppercase<F>` 将首字母大写\n3. 拼接回 `${Uppercase<F>}${R}`"
+  },
+  {
+    "id": "112",
+    "dirname": "00112-hard-capitalizewords",
+    "title": "Capitalize Words",
+    "titleCN": "Capitalize Words",
+    "difficulty": "hard",
+    "tags": [
+      "template-literal"
+    ],
+    "description": "实现`CapitalizeWords<T>`，它将**字符串的每个单词**的第一个字母转换为大写，其余部分保持原样。",
+    "example": "",
+    "solutionCode": "",
+    "solutionExplanation": ""
+  },
+  {
+    "id": "114",
+    "dirname": "00114-hard-camelcase",
+    "title": "CamelCase",
+    "titleCN": "CamelCase",
+    "difficulty": "hard",
+    "tags": [
+      "template-literal"
+    ],
+    "description": "实现 `CamelCase<T>` ，将 `snake_case` 类型的表示的字符串转换为 `camelCase` 的表示方式。",
+    "example": "",
+    "solutionCode": "",
+    "solutionExplanation": ""
+  },
+  {
+    "id": "116",
+    "dirname": "00116-medium-replace",
+    "title": "Replace",
+    "titleCN": "Replace",
+    "difficulty": "medium",
+    "tags": [
+      "template-literal"
+    ],
+    "description": "实现 `Replace<S, From, To>` 将字符串 `S` 中的第一个子字符串 `From` 替换为 `To` 。",
+    "example": "",
+    "solutionCode": "type Replace<S extends string, From extends string, To extends string> = From extends '' ? S : S extends `${infer L}${From}${infer R}` ? `${L}${To}${R}` : S",
+    "solutionExplanation": "1. From 为空时直接返回 S\n2. 匹配 `${infer L}${From}${infer R}`\n3. 将 From 替换为 To\n4. 只替换第一个匹配项"
+  },
+  {
+    "id": "119",
+    "dirname": "00119-medium-replaceall",
+    "title": "ReplaceAll",
+    "titleCN": "ReplaceAll",
+    "difficulty": "medium",
+    "tags": [
+      "template-literal"
+    ],
+    "description": "实现 `ReplaceAll<S, From, To>` 将一个字符串 `S` 中的所有子字符串 `From` 替换为 `To`。",
+    "example": "",
+    "solutionCode": "type ReplaceAll<S extends string, From extends string, To extends string> = From extends '' ? S : S extends `${infer L}${From}${infer R}` ? `${L}${To}${ReplaceAll<R, From, To>}` : S",
+    "solutionExplanation": "1. 匹配第一个 From，替换为 To\n2. 对剩余部分 R 递归 ReplaceAll\n3. 直到没有匹配项"
+  },
+  {
+    "id": "147",
+    "dirname": "00147-hard-c-printf-parser",
+    "title": "C-printf Parser",
+    "titleCN": "C-printf Parser",
+    "difficulty": "hard",
+    "tags": [
+      "template-literal"
+    ],
+    "description": "There is a function in C language: `printf`. This function allows us to print something with formatting. Like this:",
+    "example": "",
+    "solutionCode": "",
+    "solutionExplanation": ""
+  },
+  {
+    "id": "151",
+    "dirname": "00151-extreme-query-string-parser",
+    "title": "Query String Parser",
+    "titleCN": "Query String Parser",
+    "difficulty": "extreme",
+    "tags": [
+      "template-literal"
+    ],
+    "description": "You're required to implement a type-level parser to parse URL query string into a object literal type.",
+    "example": "",
+    "solutionCode": "",
+    "solutionExplanation": ""
+  },
+  {
+    "id": "189",
+    "dirname": "00189-easy-awaited",
+    "title": "Awaited",
+    "titleCN": "Awaited",
+    "difficulty": "easy",
+    "tags": [
+      "promise",
+      "built-in"
+    ],
+    "description": "假如我们有一个 Promise 对象，这个 Promise 对象会返回一个类型。在 TS 中，我们用 Promise<T> 中的 T 来描述这个 Promise 返回的类型。请你实现一个类型，可以获取这个类型。",
+    "example": "",
+    "solutionCode": "type MyAwaited<T extends Promise<any>> = T extends Promise<infer R> ? (R extends Promise<any> ? MyAwaited<R> : R) : never",
+    "solutionExplanation": "1. 用 infer 提取 Promise 内部类型\n2. 递归检查是否还是 Promise\n3. 直到不是 Promise 为止"
+  },
+  {
+    "id": "191",
+    "dirname": "00191-medium-append-argument",
+    "title": "Append Argument",
+    "titleCN": "Append Argument",
+    "difficulty": "medium",
+    "tags": [
+      "arguments"
+    ],
+    "description": "由 @antfu 翻译",
+    "example": "",
+    "solutionCode": "type AppendArgument<F extends (...args: any[]) => any, A> = F extends (...args: infer P) => infer R ? (...args: [...P, A]) => R : never",
+    "solutionExplanation": "1. 提取原函数的参数 P 和返回值 R\n2. 用 `[...P, A]` 在参数末尾追加 A\n3. 保持原返回值类型"
+  },
+  {
+    "id": "213",
+    "dirname": "00213-hard-vue-basic-props",
+    "title": "Vue Basic Props",
+    "titleCN": "Vue Basic Props",
+    "difficulty": "hard",
+    "tags": [
+      "'vue",
+      "application'"
+    ],
+    "description": "**This challenge continues from [6 - Simple Vue](//tsch.js.org/6), you should finish that one first, and modify your code based on it to start this challenge**.",
+    "example": "",
+    "solutionCode": "",
+    "solutionExplanation": ""
+  },
+  {
+    "id": "216",
+    "dirname": "00216-extreme-slice",
+    "title": "Slice",
+    "titleCN": "Slice",
+    "difficulty": "extreme",
+    "tags": [
+      "array"
+    ],
+    "description": "Implement the JavaScript `Array.slice` function in the type system. `Slice<Arr, Start, End>` takes the three argument. The output should be a subarray of `Arr` from index `Start` to `End`. Indexes wit",
+    "example": "",
+    "solutionCode": "",
+    "solutionExplanation": ""
+  },
+  {
+    "id": "223",
+    "dirname": "00223-hard-isany",
+    "title": "IsAny",
+    "titleCN": "IsAny",
+    "difficulty": "hard",
+    "tags": [
+      "utils"
+    ],
+    "description": "Sometimes it's useful to detect if you have a value with `any` type. This is especially helpful while working with third-party Typescript modules, which can export `any` values in the module API. It's",
+    "example": "",
+    "solutionCode": "",
+    "solutionExplanation": ""
+  },
+  {
+    "id": "268",
+    "dirname": "00268-easy-if",
+    "title": "If",
+    "titleCN": "If",
+    "difficulty": "easy",
+    "tags": [
+      "utils"
+    ],
+    "description": "实现一个 `IF` 类型，它接收一个条件类型 `C` ，一个判断为真时的返回类型 `T` ，以及一个判断为假时的返回类型 `F`。 `C` 只能是 `true` 或者 `false`， `T` 和 `F` 可以是任意类型。",
+    "example": "",
+    "solutionCode": "type If<C extends boolean, T, F> = C extends true ? T : F",
+    "solutionExplanation": "1. 约束 C 为 boolean\n2. 条件类型：C 为 true 返回 T，否则返回 F\n3. 注意这里 C 不是联合类型，不会触发分配律"
+  },
+  {
+    "id": "270",
+    "dirname": "00270-hard-typed-get",
+    "title": "Typed Get",
+    "titleCN": "Typed Get",
+    "difficulty": "hard",
+    "tags": [
+      "'utils",
+      "template-literal'"
+    ],
+    "description": "The [`get` function in lodash](https://lodash.com/docs/4.17.15#get) is a quite convenient helper for accessing nested values in JavaScript. However, when we come to TypeScript, using functions like th",
+    "example": "",
+    "solutionCode": "",
+    "solutionExplanation": ""
+  },
+  {
+    "id": "274",
+    "dirname": "00274-extreme-integers-comparator",
+    "title": "Integers Comparator",
+    "titleCN": "Integers Comparator",
+    "difficulty": "extreme",
+    "tags": [
+      "template-literal",
+      "math"
+    ],
+    "description": "Implement a type-level integers comparator. We've provided an enum for indicating the comparison result, like this:",
+    "example": "",
+    "solutionCode": "",
+    "solutionExplanation": ""
+  },
+  {
+    "id": "296",
+    "dirname": "00296-medium-permutation",
+    "title": "Permutation",
+    "titleCN": "Permutation",
+    "difficulty": "medium",
+    "tags": [
+      "union"
+    ],
+    "description": "实现联合类型的全排列，将联合类型转换成所有可能的全排列数组的联合类型。",
+    "example": "",
+    "solutionCode": "type Permutation<T, U = T> = [T] extends [never] ? [] : T extends any ? [T, ...Permutation<Exclude<U, T>>] : never",
+    "solutionExplanation": "1. T 为 never 时返回空数组\n2. 利用分配律遍历 T 的每个成员\n3. 当前成员放首位，递归排列剩余的"
+  },
+  {
+    "id": "298",
+    "dirname": "00298-medium-length-of-string",
+    "title": "Length of String",
+    "titleCN": "Length of String",
+    "difficulty": "medium",
+    "tags": [
+      "template-literal"
+    ],
+    "description": "计算字符串的长度，类似于 `String#length` 。",
+    "example": "",
+    "solutionCode": "type LengthOfString<S extends string, A extends any[] = []> = S extends `${infer F}${infer R}` ? LengthOfString<R, [...A, F]> : A['length']",
+    "solutionExplanation": "1. 递归拆分字符串\n2. 用辅助数组 A 累积计数\n3. 最终返回 `A[\"length\"]`\n4. 用元组长度模拟数字"
+  },
+  {
+    "id": "300",
+    "dirname": "00300-hard-string-to-number",
+    "title": "String to Number",
+    "titleCN": "String to Number",
+    "difficulty": "hard",
+    "tags": [
+      "template-literal"
+    ],
+    "description": "Convert a string literal to a number, which behaves like `Number.parseInt`.",
+    "example": "",
+    "solutionCode": "",
+    "solutionExplanation": ""
+  },
+  {
+    "id": "399",
+    "dirname": "00399-hard-tuple-filter",
+    "title": "Tuple Filter",
+    "titleCN": "Tuple Filter",
+    "difficulty": "hard",
+    "tags": [
+      "'tuple",
+      "infer'"
+    ],
+    "description": "Implement a type `FilterOut<T, F>` that filters out items of the given type `F` from the tuple `T`.",
+    "example": "",
+    "solutionCode": "",
+    "solutionExplanation": ""
+  },
+  {
+    "id": "459",
+    "dirname": "00459-medium-flatten",
+    "title": "Flatten",
+    "titleCN": "Flatten",
+    "difficulty": "medium",
+    "tags": [
+      "array"
+    ],
+    "description": "在这个挑战中，你需要写一个接受数组的类型，并且返回扁平化的数组类型。",
+    "example": "",
+    "solutionCode": "type Flatten<T extends any[]> = T extends [infer F, ...infer R] ? (F extends any[] ? [...Flatten<F>, ...Flatten<R>] : [F, ...Flatten<R>]) : []",
+    "solutionExplanation": "1. 逐个处理数组元素\n2. 如果元素是数组 → 递归 Flatten 并展开\n3. 如果元素不是数组 → 直接保留\n4. 空数组返回 []"
+  },
+  {
+    "id": "462",
+    "dirname": "00462-extreme-currying-2",
+    "title": "Currying 2",
+    "titleCN": "Currying 2",
+    "difficulty": "extreme",
+    "tags": [],
+    "description": "[Currying](https://en.wikipedia.org/wiki/Currying) 是一种将带有多个参数的函数转换为每个带有一个参数的函数序列的技术。",
+    "example": "",
+    "solutionCode": "",
+    "solutionExplanation": ""
+  },
+  {
+    "id": "472",
+    "dirname": "00472-hard-tuple-to-enum-object",
+    "title": "Tuple to Enum Object",
+    "titleCN": "Tuple to Enum Object",
+    "difficulty": "hard",
+    "tags": [
+      "'tuple",
+      "template-literal'"
+    ],
+    "description": "枚举是 TypeScript 的一种原生语法（在 JavaScript 中不存在）。因此在 JavaScript 中枚举会被转成如下形式的代码：",
+    "example": "",
+    "solutionCode": "",
+    "solutionExplanation": ""
+  },
+  {
+    "id": "476",
+    "dirname": "00476-extreme-sum",
+    "title": "Sum",
+    "titleCN": "Sum",
+    "difficulty": "extreme",
+    "tags": [
+      "'math",
+      "template-literal'"
+    ],
+    "description": "Implement a type `Sum<A, B>` that summing two non-negative integers and returns the sum as a string. Numbers can be specified as a string, number, or bigint.",
+    "example": "",
+    "solutionCode": "",
+    "solutionExplanation": ""
+  },
+  {
+    "id": "517",
+    "dirname": "00517-extreme-multiply",
+    "title": "Multiply",
+    "titleCN": "Multiply",
+    "difficulty": "extreme",
+    "tags": [
+      "'math",
+      "template-literal'"
+    ],
+    "description": "**This challenge continues from [476 - Sum](https://tsch.js.org/476), it is recommended that you finish that one first, and modify your code based on it to start this challenge.**",
+    "example": "",
+    "solutionCode": "",
+    "solutionExplanation": ""
+  },
+  {
+    "id": "527",
+    "dirname": "00527-medium-append-to-object",
+    "title": "Append to object",
+    "titleCN": "Append to object",
+    "difficulty": "medium",
+    "tags": [
+      "object-keys"
+    ],
+    "description": "实现一个为接口添加一个新字段的类型。该类型接收三个参数，返回带有新字段的接口类型。",
+    "example": "",
+    "solutionCode": "type AppendToObject<T extends object, U extends string, V> = { [P in keyof T | U]: P extends keyof T ? T[P] : V }",
+    "solutionExplanation": "1. 遍历 `keyof T | U`\n2. 如果 P 是 T 的属性 → 取原始值\n3. 如果 P 是 U → 取新值 V\n4. 用 `|` 将新属性加入遍历"
+  },
+  {
+    "id": "529",
+    "dirname": "00529-medium-absolute",
+    "title": "Absolute",
+    "titleCN": "Absolute",
+    "difficulty": "medium",
+    "tags": [
+      "'math",
+      "template-literal'"
+    ],
+    "description": "实现一个接收string,number或bigInt类型参数的`Absolute`类型,返回一个正数字符串。",
+    "example": "",
+    "solutionCode": "type Absolute<T extends number | string | bigint> = `${T}` extends `-${infer R}` ? R : `${T}`",
+    "solutionExplanation": "1. 将 T 转为字符串\n2. 匹配 `-` 前缀 → 去掉负号\n3. 否则直接返回\n4. 利用了模板字面量类型的类型推断"
+  },
+  {
+    "id": "531",
+    "dirname": "00531-medium-string-to-union",
+    "title": "String to Union",
+    "titleCN": "String to Union",
+    "difficulty": "medium",
+    "tags": [
+      "'union",
+      "string'"
+    ],
+    "description": "实现一个将接收到的String参数转换为一个字母Union的类型。",
+    "example": "",
+    "solutionCode": "type StringToUnion<T extends string> = T extends `${infer F}${infer R}` ? F | StringToUnion<R> : never",
+    "solutionExplanation": "1. 递归拆分每个字符\n2. 用 `|` 将字符组合为联合类型\n3. 空字符串返回 never"
+  },
+  {
+    "id": "533",
+    "dirname": "00533-easy-concat",
+    "title": "Concat",
+    "titleCN": "Concat",
+    "difficulty": "easy",
+    "tags": [
+      "array"
+    ],
+    "description": "在类型系统里实现 JavaScript 内置的 `Array.concat` 方法，这个类型接受两个参数，返回的新数组类型应该按照输入参数从左到右的顺序合并为一个新的数组。",
+    "example": "",
+    "solutionCode": "type Concat<T extends any[], U extends any[]> = [...T, ...U]",
+    "solutionExplanation": "用可变元组展开语法 `[...T, ...U]` 合并两个元组。"
+  },
+  {
+    "id": "545",
+    "dirname": "00545-hard-printf",
+    "title": "printf",
+    "titleCN": "printf",
+    "difficulty": "hard",
+    "tags": [
+      "template-literal"
+    ],
+    "description": "Implement `Format<T extends string>` generic.",
+    "example": "",
+    "solutionCode": "",
+    "solutionExplanation": ""
+  },
+  {
+    "id": "553",
+    "dirname": "00553-hard-deep-object-to-unique",
+    "title": "Deep object to unique",
+    "titleCN": "Deep object to unique",
+    "difficulty": "hard",
+    "tags": [
+      "deep"
+    ],
+    "description": "TypeScript has structural type system, but sometimes you want a function to accept only some previously well-defined unique objects (as in the nominal type system), and not any objects that have the r",
+    "example": "",
+    "solutionCode": "",
+    "solutionExplanation": ""
+  },
+  {
+    "id": "599",
+    "dirname": "00599-medium-merge",
+    "title": "Merge",
+    "titleCN": "Merge",
+    "difficulty": "medium",
+    "tags": [
+      "object"
+    ],
+    "description": "将两个类型合并成一个类型，第二个类型的键会覆盖第一个类型的键。",
+    "example": "",
+    "solutionCode": "type Merge<F, S> = { [P in keyof F | keyof S]: P extends keyof S ? S[P] : P extends keyof F ? F[P] : never }",
+    "solutionExplanation": "1. 遍历两个对象的所有属性\n2. 优先取 S 的值（覆盖 F）\n3. 否则取 F 的值"
+  },
+  {
+    "id": "612",
+    "dirname": "00612-medium-kebabcase",
+    "title": "KebabCase",
+    "titleCN": "KebabCase",
+    "difficulty": "medium",
+    "tags": [
+      "template-literal"
+    ],
+    "description": "Replace the `camelCase` or `PascalCase` string with `kebab-case`.",
+    "example": "",
+    "solutionCode": "type KebabCase<S extends string> = S extends `${infer F}${infer R}` ? (R extends Uncapitalize<R> ? `${Lowercase<F>}${KebabCase<R>}` : `${Lowercase<F>}-${KebabCase<Uncapitalize<R>>}`) : S",
+    "solutionExplanation": "1. 逐个字符处理\n2. 遇到大写字母 → 前面加 `-`\n3. 全部转小写\n4. 用 Uncapitalize 判断是否大写"
+  },
+  {
+    "id": "645",
+    "dirname": "00645-medium-diff",
+    "title": "Diff",
+    "titleCN": "Diff",
+    "difficulty": "medium",
+    "tags": [
+      "object"
+    ],
+    "description": "获取两个接口类型中的差值属性。",
+    "example": "",
+    "solutionCode": "type Diff<O, O1> = { [P in Exclude<keyof O | keyof O1, keyof O & keyof O1>]: P extends keyof O ? O[P] : P extends keyof O1 ? O1[P] : never }",
+    "solutionExplanation": "1. 取两个对象属性的对称差集\n2. `Exclude<A|B, A&B>` 排除公共属性\n3. 映射结果属性到对应类型的值"
+  },
+  {
+    "id": "651",
+    "dirname": "00651-hard-length-of-string-2",
+    "title": "Length of String 2",
+    "titleCN": "Length of String 2",
+    "difficulty": "hard",
+    "tags": [
+      "template-literal"
+    ],
+    "description": "Implement a type `LengthOfString<S>` that calculates the length of the template string (as in [298 - Length of String](https://tsch.js.org/298)):",
+    "example": "",
+    "solutionCode": "",
+    "solutionExplanation": ""
+  },
+  {
+    "id": "697",
+    "dirname": "00697-extreme-tag",
+    "title": "Tag",
+    "titleCN": "Tag",
+    "difficulty": "extreme",
+    "tags": [],
+    "description": "Despite the structural typing system in TypeScript, it is sometimes convenient to mark some types with tags, and so that these tags do not interfere with the ability to assign values  of these types t",
+    "example": "",
+    "solutionCode": "",
+    "solutionExplanation": ""
+  },
+  {
+    "id": "730",
+    "dirname": "00730-hard-union-to-tuple",
+    "title": "Union to Tuple",
+    "titleCN": "Union to Tuple",
+    "difficulty": "hard",
+    "tags": [
+      "union",
+      "tuple",
+      "infer"
+    ],
+    "description": "Implement a type, `UnionToTuple`, that converts a union to a tuple.",
+    "example": "",
+    "solutionCode": "",
+    "solutionExplanation": ""
+  },
+  {
+    "id": "734",
+    "dirname": "00734-extreme-inclusive-range",
+    "title": "Inclusive Range",
+    "titleCN": "Inclusive Range",
+    "difficulty": "extreme",
+    "tags": [
+      "infer",
+      "array"
+    ],
+    "description": "Recursion depth in type system is one of the limitations of TypeScript, the number is around 45.",
+    "example": "",
+    "solutionCode": "",
+    "solutionExplanation": ""
+  },
+  {
+    "id": "741",
+    "dirname": "00741-extreme-sort",
+    "title": "Sort",
+    "titleCN": "Sort",
+    "difficulty": "extreme",
+    "tags": [
+      "infer",
+      "array"
+    ],
+    "description": "In this challenge, you are required to sort natural number arrays in either ascend order or descent order.",
+    "example": "",
+    "solutionCode": "",
+    "solutionExplanation": ""
+  },
+  {
+    "id": "847",
+    "dirname": "00847-hard-string-join",
+    "title": "String Join",
+    "titleCN": "String Join",
+    "difficulty": "hard",
+    "tags": [],
+    "description": "Create a type-safe string join utility which can be used like so:",
+    "example": "",
+    "solutionCode": "",
+    "solutionExplanation": ""
+  },
+  {
+    "id": "869",
+    "dirname": "00869-extreme-distributeunions",
+    "title": "DistributeUnions",
+    "titleCN": "DistributeUnions",
+    "difficulty": "extreme",
+    "tags": [],
+    "description": "Implement a type `Distribute Unions`, that turns a type of data structure containing union types into a union of all possible types of permitted data structures that don't contain any union. The data ",
+    "example": "",
+    "solutionCode": "",
+    "solutionExplanation": ""
+  },
+  {
+    "id": "898",
+    "dirname": "00898-easy-includes",
+    "title": "Includes",
+    "titleCN": "Includes",
+    "difficulty": "easy",
+    "tags": [
+      "array"
+    ],
+    "description": "在类型系统里实现 JavaScript 的 `Array.includes` 方法，这个类型接受两个参数，返回的类型要么是 `true` 要么是 `false`。",
+    "example": "",
+    "solutionCode": "type Includes<T extends readonly any[], U> = T extends [infer F, ...infer R] ? (Equal<F, U> extends true ? true : Includes<R, U>) : false",
+    "solutionExplanation": "1. 逐个检查元素\n2. 用 Equal 严格比较类型\n3. 找到匹配返回 true\n4. 遍历完返回 false"
+  },
+  {
+    "id": "925",
+    "dirname": "00925-extreme-assert-array-index",
+    "title": "Assert Array Index",
+    "titleCN": "Assert Array Index",
+    "difficulty": "extreme",
+    "tags": [
+      "array"
+    ],
+    "description": "Sometimes we want to use the good old `for`-loop with an index to traverse the array, but in this case TypeScript does not check in any way that we are accessing the elements of the array at its real ",
+    "example": "",
+    "solutionCode": "",
+    "solutionExplanation": ""
+  },
+  {
+    "id": "949",
+    "dirname": "00949-medium-anyof",
+    "title": "AnyOf",
+    "titleCN": "AnyOf",
+    "difficulty": "medium",
+    "tags": [
+      "array"
+    ],
+    "description": "在类型系统中实现类似于 Python 中 `any` 函数。类型接收一个数组，如果数组中任一个元素为真，则返回 `true`，否则返回 `false`。如果数组为空，返回 `false`。",
+    "example": "",
+    "solutionCode": "type AnyOf<T extends readonly any[]> = T[number] extends 0 | '' | false | [] | { [key: string]: never } | undefined | null ? false : true",
+    "solutionExplanation": "1. `T[number]` 获取元素联合类型\n2. 检查是否所有元素都是 falsy 类型\n3. 如果是 → false，否则 → true"
+  },
+  {
+    "id": "956",
+    "dirname": "00956-hard-deeppick",
+    "title": "DeepPick",
+    "titleCN": "DeepPick",
+    "difficulty": "hard",
+    "tags": [
+      "deep"
+    ],
+    "description": "Implement a type DeepPick, that extends Utility types `Pick`. A type takes two arguments.",
+    "example": "",
+    "solutionCode": "",
+    "solutionExplanation": ""
+  },
+  {
+    "id": "1042",
+    "dirname": "01042-medium-isnever",
+    "title": "IsNever",
+    "titleCN": "IsNever",
+    "difficulty": "medium",
+    "tags": [
+      "union",
+      "utils"
+    ],
+    "description": "Implement a type IsNever, which takes input type `T`. If the type of resolves to `never`, return `true`, otherwise `false`.",
+    "example": "",
+    "solutionCode": "type IsNever<T> = [T] extends [never] ? true : false",
+    "solutionExplanation": "1. 关键：用 `[T]` 包装防止分配律\n2. never 在条件类型中会直接\"消失\"\n3. 用元组包装后，`[never] extends [never]` 才能正确判断"
+  },
+  {
+    "id": "1097",
+    "dirname": "01097-medium-isunion",
+    "title": "IsUnion",
+    "titleCN": "IsUnion",
+    "difficulty": "medium",
+    "tags": [
+      "union"
+    ],
+    "description": "Implement a type `IsUnion`, which takes an input type `T` and returns whether `T` resolves to a union type.",
+    "example": "",
+    "solutionCode": "type IsUnion<T, U = T> = [T] extends [never] ? false : T extends U ? ([U] extends [T] ? false : true) : never",
+    "solutionExplanation": "1. T 为 never → false\n2. 利用分配律：如果是联合类型，T 会被分配\n3. 分配后比较 `[U] extends [T]`\n4. 联合类型时每个分支的 U !== T → true"
+  },
+  {
+    "id": "1130",
+    "dirname": "01130-medium-replacekeys",
+    "title": "ReplaceKeys",
+    "titleCN": "ReplaceKeys",
+    "difficulty": "medium",
+    "tags": [
+      "object-keys"
+    ],
+    "description": "Implement a type ReplaceKeys, that replace keys in union types, if some type has not this key, just skip replacing, A type takes three arguments.",
+    "example": "",
+    "solutionCode": "type ReplaceKeys<U, T, Y> = { [P in keyof U]: P extends T ? (P extends keyof Y ? Y[P] : never) : U[P] }",
+    "solutionExplanation": "1. 遍历 U 的所有属性\n2. 如果属性在 T 中 → 替换为 Y 对应值\n3. 如果 Y 中没有对应值 → never\n4. 否则保持 U 的原值"
+  },
+  {
+    "id": "1290",
+    "dirname": "01290-hard-pinia",
+    "title": "Pinia",
+    "titleCN": "Pinia",
+    "difficulty": "hard",
+    "tags": [
+      "this",
+      "vue"
+    ],
+    "description": "Create a type-level function whose types is similar to [Pinia](https://github.com/posva/pinia) library. You don't need to implement function actually, just adding types.",
+    "example": "",
+    "solutionCode": "",
+    "solutionExplanation": ""
+  },
+  {
+    "id": "1367",
+    "dirname": "01367-medium-remove-index-signature",
+    "title": "Remove Index Signature",
+    "titleCN": "Remove Index Signature",
+    "difficulty": "medium",
+    "tags": [
+      "object-keys"
+    ],
+    "description": "Implement `RemoveIndexSignature<T>` , exclude the index signature from object types.",
+    "example": "",
+    "solutionCode": "type RemoveIndexSignature<T> = { [P in keyof T as string extends P ? never : number extends P ? never : P]: T[P] }",
+    "solutionExplanation": "1. 用 `as` 子句过滤属性名\n2. `string extends P` 判断是否为字符串索引签名\n3. `number extends P` 判断是否为数字索引签名\n4. 非索引签名的属性保留"
+  },
+  {
+    "id": "1383",
+    "dirname": "01383-hard-camelize",
+    "title": "Camelize",
+    "titleCN": "Camelize",
+    "difficulty": "hard",
+    "tags": [
+      "union",
+      "recursion"
+    ],
+    "description": "实现 Camelize 类型: 将对象属性名从 蛇形命名(下划线命名) 转换为 小驼峰命名",
+    "example": "",
+    "solutionCode": "",
+    "solutionExplanation": ""
+  },
+  {
+    "id": "1978",
+    "dirname": "01978-medium-percentage-parser",
+    "title": "Percentage Parser",
+    "titleCN": "Percentage Parser",
+    "difficulty": "medium",
+    "tags": [
+      "template-literal"
+    ],
+    "description": "实现类型 PercentageParser<T extends string>。根据规则 `/^(\\+|\\-)?(\\d*)?(\\%)?$/` 匹配类型 T。",
+    "example": "",
+    "solutionCode": "type PercentageParser<A extends string> = A extends `${infer Sign extends '+' | '-'}${infer R}` ? [Sign, ...(R extends `${infer N}%` ? [N, '%'] : [R, ''])] : A extends `${infer N}%` ? ['', N, '%'] : ['', A, '']",
+    "solutionExplanation": "1. 匹配正负号 `+`/`-`\n2. 匹配数字部分\n3. 匹配百分号 `%`\n4. 返回 `[符号, 数字, 单位]`"
+  },
+  {
+    "id": "2059",
+    "dirname": "02059-hard-drop-string",
+    "title": "Drop String",
+    "titleCN": "Drop String",
+    "difficulty": "hard",
+    "tags": [
+      "template-literal",
+      "infer"
+    ],
+    "description": "Drop the specified chars from a string.",
+    "example": "",
+    "solutionCode": "",
+    "solutionExplanation": ""
+  },
+  {
+    "id": "2070",
+    "dirname": "02070-medium-drop-char",
+    "title": "Drop Char",
+    "titleCN": "Drop Char",
+    "difficulty": "medium",
+    "tags": [
+      "template-literal",
+      "infer"
+    ],
+    "description": "从字符串中剔除指定字符。",
+    "example": "",
+    "solutionCode": "type DropChar<S extends string, C extends string> = S extends `${infer F}${infer R}` ? (F extends C ? DropChar<R, C> : `${F}${DropChar<R, C>}`) : S",
+    "solutionExplanation": "1. 逐个字符检查\n2. 匹配 C 则跳过（递归 DropChar）\n3. 不匹配则保留并继续递归"
+  },
+  {
+    "id": "2257",
+    "dirname": "02257-medium-minusone",
+    "title": "MinusOne",
+    "titleCN": "MinusOne",
+    "difficulty": "medium",
+    "tags": [
+      "math"
+    ],
+    "description": "给定一个正整数作为类型的参数，要求返回的类型是该数字减 1。",
+    "example": "",
+    "solutionCode": "type MinusOne<T extends number, A extends any[] = []> = T extends A['length'] ? A extends [any, ...infer Rest] ? Rest['length'] : never : MinusOne<T, [...A, any]>",
+    "solutionExplanation": "1. 用元组长度模拟数字\n2. 构建长度为 T 的元组\n3. 去掉第一个元素后取 length\n4. 得到 T-1"
+  },
+  {
+    "id": "2595",
+    "dirname": "02595-medium-pickbytype",
+    "title": "PickByType",
+    "titleCN": "PickByType",
+    "difficulty": "medium",
+    "tags": [
+      "object"
+    ],
+    "description": "From `T`, pick a set of properties whose type are assignable to `U`.",
+    "example": "",
+    "solutionCode": "type PickByType<T, U> = { [P in keyof T as T[P] extends U ? P : never]: T[P] }",
+    "solutionExplanation": "1. 遍历 T 的所有属性\n2. 用 `as` 子句过滤：值类型匹配 U 的保留\n3. 不匹配的变成 never 被过滤掉"
+  },
+  {
+    "id": "2688",
+    "dirname": "02688-medium-startswith",
+    "title": "StartsWith",
+    "titleCN": "StartsWith",
+    "difficulty": "medium",
+    "tags": [
+      "template-literal"
+    ],
+    "description": "实现`StartsWith<T, U>`,接收两个string类型参数,然后判断`T`是否以`U`开头,根据结果返回`true`或`false`",
+    "example": "",
+    "solutionCode": "type StartsWith<T extends string, U extends string> = T extends `${U}${string}` ? true : false",
+    "solutionExplanation": "用模板字面量类型匹配：`${U}${string}` 表示以 U 开头任意字符串结尾。"
+  },
+  {
+    "id": "2693",
+    "dirname": "02693-medium-endswith",
+    "title": "EndsWith",
+    "titleCN": "EndsWith",
+    "difficulty": "medium",
+    "tags": [
+      "template-literal"
+    ],
+    "description": "实现`EndsWith<T, U>`,接收两个string类型参数,然后判断`T`是否以`U`结尾,根据结果返回`true`或`false`",
+    "example": "",
+    "solutionCode": "type EndsWith<T extends string, U extends string> = T extends `${string}${U}` ? true : false",
+    "solutionExplanation": "用模板字面量类型匹配：`${string}${U}` 表示任意字符串开头以 U 结尾。"
+  },
+  {
+    "id": "2757",
+    "dirname": "02757-medium-partialbykeys",
+    "title": "PartialByKeys",
+    "titleCN": "PartialByKeys",
+    "difficulty": "medium",
+    "tags": [
+      "object"
+    ],
+    "description": "实现一个通用的`PartialByKeys<T, K>`，它接收两个类型参数`T`和`K`。",
+    "example": "",
+    "solutionCode": "type PartialByKeys<T, K extends keyof T = keyof T> = { [P in keyof T as P extends K ? never : P]: T[P] } & { [P in K]?: T[P] } extends infer O ? { [P in keyof O]: O[P] } : never",
+    "solutionExplanation": "1. 分成两部分：必选属性 和 可选属性\n2. 用交叉类型合并\n3. 用 `extends infer O` 展开交叉类型为单一对象类型"
+  },
+  {
+    "id": "2759",
+    "dirname": "02759-medium-requiredbykeys",
+    "title": "RequiredByKeys",
+    "titleCN": "RequiredByKeys",
+    "difficulty": "medium",
+    "tags": [
+      "object"
+    ],
+    "description": "实现一个通用的`RequiredByKeys<T, K>`，它接收两个类型参数`T`和`K`。",
+    "example": "",
+    "solutionCode": "",
+    "solutionExplanation": ""
+  },
+  {
+    "id": "2793",
+    "dirname": "02793-medium-mutable",
+    "title": "Mutable",
+    "titleCN": "Mutable",
+    "difficulty": "medium",
+    "tags": [
+      "readonly",
+      "object-keys"
+    ],
+    "description": "实现一个通用的类型 ```Mutable<T>```，使类型 `T` 的全部属性可变（非只读）。",
+    "example": "",
+    "solutionCode": "",
+    "solutionExplanation": ""
+  },
+  {
+    "id": "2822",
+    "dirname": "02822-hard-split",
+    "title": "Split",
+    "titleCN": "Split",
+    "difficulty": "hard",
+    "tags": [
+      "string",
+      "split",
+      "array",
+      "tuple"
+    ],
+    "description": "The well known `split()` method splits a string into an array of substrings by looking for a separator, and returns the new array. The goal of this challenge is to split a string, by using a separator",
+    "example": "",
+    "solutionCode": "",
+    "solutionExplanation": ""
+  },
+  {
+    "id": "2828",
+    "dirname": "02828-hard-classpublickeys",
+    "title": "ClassPublicKeys",
+    "titleCN": "ClassPublicKeys",
+    "difficulty": "hard",
+    "tags": [
+      "utils"
+    ],
+    "description": "Implement the generic `ClassPublicKeys<T>` which returns all public keys of a class.",
+    "example": "",
+    "solutionCode": "",
+    "solutionExplanation": ""
+  },
+  {
+    "id": "2852",
+    "dirname": "02852-medium-omitbytype",
+    "title": "OmitByType",
+    "titleCN": "OmitByType",
+    "difficulty": "medium",
+    "tags": [
+      "object"
+    ],
+    "description": "From ```T```, pick a set of properties whose type are not assignable to ```U```.",
+    "example": "",
+    "solutionCode": "",
+    "solutionExplanation": ""
+  },
+  {
+    "id": "2857",
+    "dirname": "02857-hard-isrequiredkey",
+    "title": "IsRequiredKey",
+    "titleCN": "IsRequiredKey",
+    "difficulty": "hard",
+    "tags": [
+      "utils"
+    ],
+    "description": "Implement a generic ```IsRequiredKey<T, K>```  that return whether ```K``` are required keys of ```T``` .",
+    "example": "",
+    "solutionCode": "",
+    "solutionExplanation": ""
+  },
+  {
+    "id": "2946",
+    "dirname": "02946-medium-objectentries",
+    "title": "ObjectEntries",
+    "titleCN": "ObjectEntries",
+    "difficulty": "medium",
+    "tags": [
+      "object"
+    ],
+    "description": "Implement the type version of ```Object.entries```",
+    "example": "",
+    "solutionCode": "",
+    "solutionExplanation": ""
+  },
+  {
+    "id": "2949",
+    "dirname": "02949-hard-objectfromentries",
+    "title": "ObjectFromEntries",
+    "titleCN": "ObjectFromEntries",
+    "difficulty": "hard",
+    "tags": [
+      "object"
+    ],
+    "description": "Implement the type version of ```Object.fromEntries```",
+    "example": "",
+    "solutionCode": "",
+    "solutionExplanation": ""
+  },
+  {
+    "id": "3057",
+    "dirname": "03057-easy-push",
+    "title": "Push",
+    "titleCN": "Push",
+    "difficulty": "easy",
+    "tags": [
+      "array"
+    ],
+    "description": "在类型系统里实现通用的 ```Array.push``` 。",
+    "example": "",
+    "solutionCode": "type Push<T extends any[], U> = [...T, U]",
+    "solutionExplanation": "用可变元组展开语法在末尾添加元素。"
+  },
+  {
+    "id": "3060",
+    "dirname": "03060-easy-unshift",
+    "title": "Unshift",
+    "titleCN": "Unshift",
+    "difficulty": "easy",
+    "tags": [
+      "array"
+    ],
+    "description": "实现类型版本的 ```Array.unshift```。",
+    "example": "",
+    "solutionCode": "type Unshift<T extends any[], U> = [U, ...T]",
+    "solutionExplanation": "用可变元组展开语法在开头添加元素。"
+  },
+  {
+    "id": "3062",
+    "dirname": "03062-medium-shift",
+    "title": "Shift",
+    "titleCN": "Shift",
+    "difficulty": "medium",
+    "tags": [
+      "array"
+    ],
+    "description": "Implement the type version of ```Array.shift```",
+    "example": "",
+    "solutionCode": "",
+    "solutionExplanation": ""
+  },
+  {
+    "id": "3188",
+    "dirname": "03188-medium-tuple-to-nested-object",
+    "title": "Tuple to Nested Object",
+    "titleCN": "Tuple to Nested Object",
+    "difficulty": "medium",
+    "tags": [
+      "object",
+      "tuple"
+    ],
+    "description": "Given a tuple type ```T``` that only contains string type, and a type ```U```, build an object recursively.",
+    "example": "",
+    "solutionCode": "",
+    "solutionExplanation": ""
+  },
+  {
+    "id": "3192",
+    "dirname": "03192-medium-reverse",
+    "title": "Reverse",
+    "titleCN": "Reverse",
+    "difficulty": "medium",
+    "tags": [
+      "tuple"
+    ],
+    "description": "实现类型版本的数组反转 ```Array.reverse```",
+    "example": "",
+    "solutionCode": "",
+    "solutionExplanation": ""
+  },
+  {
+    "id": "3196",
+    "dirname": "03196-medium-flip-arguments",
+    "title": "Flip Arguments",
+    "titleCN": "Flip Arguments",
+    "difficulty": "medium",
+    "tags": [
+      "arguments"
+    ],
+    "description": "Implement the type version of lodash's ```_.flip```.",
+    "example": "",
+    "solutionCode": "",
+    "solutionExplanation": ""
+  },
+  {
+    "id": "3243",
+    "dirname": "03243-medium-flattendepth",
+    "title": "FlattenDepth",
+    "titleCN": "FlattenDepth",
+    "difficulty": "medium",
+    "tags": [
+      "array"
+    ],
+    "description": "Recursively flatten array up to depth times.",
+    "example": "",
+    "solutionCode": "",
+    "solutionExplanation": ""
+  },
+  {
+    "id": "3312",
+    "dirname": "03312-easy-parameters",
+    "title": "Parameters",
+    "titleCN": "Parameters",
+    "difficulty": "easy",
+    "tags": [
+      "infer",
+      "tuple",
+      "built-in"
+    ],
+    "description": "实现内置的 Parameters<T> 类型，而不是直接使用它，可参考[TypeScript官方文档](https://www.typescriptlang.org/docs/handbook/utility-types.html#parameterstype)。",
+    "example": "",
+    "solutionCode": "type MyParameters<T extends (...args: any[]) => any> = T extends (...args: infer P) => any ? P : never",
+    "solutionExplanation": "用 infer 推断函数参数元组类型。"
+  },
+  {
+    "id": "3326",
+    "dirname": "03326-medium-bem-style-string",
+    "title": "BEM style string",
+    "titleCN": "BEM style string",
+    "difficulty": "medium",
+    "tags": [
+      "template-literal",
+      "union",
+      "tuple"
+    ],
+    "description": "The Block, Element, Modifier methodology (BEM) is a popular naming convention for classes in CSS.",
+    "example": "",
+    "solutionCode": "",
+    "solutionExplanation": ""
+  },
+  {
+    "id": "3376",
+    "dirname": "03376-medium-inordertraversal",
+    "title": "InorderTraversal",
+    "titleCN": "InorderTraversal",
+    "difficulty": "medium",
+    "tags": [
+      "object"
+    ],
+    "description": "Implement the type version of binary tree inorder traversal.",
+    "example": "",
+    "solutionCode": "",
+    "solutionExplanation": ""
+  },
+  {
+    "id": "4037",
+    "dirname": "04037-hard-ispalindrome",
+    "title": "IsPalindrome",
+    "titleCN": "IsPalindrome",
+    "difficulty": "hard",
+    "tags": [
+      "string"
+    ],
+    "description": "Implement type ```IsPalindrome<T>``` to check whether  a string or number is palindrome.",
+    "example": "",
+    "solutionCode": "",
+    "solutionExplanation": ""
+  },
+  {
+    "id": "4179",
+    "dirname": "04179-medium-flip",
+    "title": "Flip",
+    "titleCN": "Flip",
+    "difficulty": "medium",
+    "tags": [
+      "object"
+    ],
+    "description": "Implement the type of `just-flip-object`. Examples:",
+    "example": "",
+    "solutionCode": "",
+    "solutionExplanation": ""
+  },
+  {
+    "id": "4182",
+    "dirname": "04182-medium-fibonacci-sequence",
+    "title": "Fibonacci Sequence",
+    "titleCN": "Fibonacci Sequence",
+    "difficulty": "medium",
+    "tags": [],
+    "description": "Implement a generic Fibonacci\\<T\\> takes an number T and returns it's corresponding [Fibonacci number](https://en.wikipedia.org/wiki/Fibonacci_number).",
+    "example": "",
+    "solutionCode": "",
+    "solutionExplanation": ""
+  },
+  {
+    "id": "4260",
+    "dirname": "04260-medium-nomiwase",
+    "title": "AllCombinations",
+    "titleCN": "AllCombinations",
+    "difficulty": "medium",
+    "tags": [
+      "template-literal",
+      "infer",
+      "union"
+    ],
+    "description": "Implement type ```AllCombinations<S>``` that return all combinations of strings which use characters from ```S``` at most once.",
+    "example": "",
+    "solutionCode": "",
+    "solutionExplanation": ""
+  },
+  {
+    "id": "4425",
+    "dirname": "04425-medium-greater-than",
+    "title": "Greater Than",
+    "titleCN": "Greater Than",
+    "difficulty": "medium",
+    "tags": [
+      "array"
+    ],
+    "description": "In This Challenge, You should implement a type `GreaterThan<T, U>` like `T > U`",
+    "example": "",
+    "solutionCode": "",
+    "solutionExplanation": ""
+  },
+  {
+    "id": "4471",
+    "dirname": "04471-medium-zip",
+    "title": "Zip",
+    "titleCN": "Zip",
+    "difficulty": "medium",
+    "tags": [
+      "tuple"
+    ],
+    "description": "In This Challenge, You should implement a type `Zip<T, U>`, T and U must be `Tuple`",
+    "example": "",
+    "solutionCode": "",
+    "solutionExplanation": ""
+  },
+  {
+    "id": "4484",
+    "dirname": "04484-medium-istuple",
+    "title": "IsTuple",
+    "titleCN": "IsTuple",
+    "difficulty": "medium",
+    "tags": [
+      "tuple"
+    ],
+    "description": "Implement a type ```IsTuple```, which takes an input type ```T``` and returns whether ```T``` is tuple type.",
+    "example": "",
+    "solutionCode": "",
+    "solutionExplanation": ""
+  },
+  {
+    "id": "4499",
+    "dirname": "04499-medium-chunk",
+    "title": "Chunk",
+    "titleCN": "Chunk",
+    "difficulty": "medium",
+    "tags": [
+      "tuple"
+    ],
+    "description": "Do you know `lodash`? `Chunk` is a very useful function in it, now let's implement it. `Chunk<T, N>` accepts two required type parameters, the `T` must be a `tuple`, and the `N` must be an `integer >=",
+    "example": "",
+    "solutionCode": "",
+    "solutionExplanation": ""
+  },
+  {
+    "id": "4518",
+    "dirname": "04518-medium-fill",
+    "title": "Fill",
+    "titleCN": "Fill",
+    "difficulty": "medium",
+    "tags": [
+      "tuple"
+    ],
+    "description": "`Fill`, a common JavaScript function, now let us implement it with types. `Fill<T, N, Start?, End?>`, as you can see,`Fill` accepts four types of parameters, of which `T` and `N` are required paramete",
+    "example": "",
+    "solutionCode": "",
+    "solutionExplanation": ""
+  },
+  {
+    "id": "4803",
+    "dirname": "04803-medium-trim-right",
+    "title": "Trim Right",
+    "titleCN": "Trim Right",
+    "difficulty": "medium",
+    "tags": [
+      "template-literal"
+    ],
+    "description": "实现 `TrimRight<T>` ，它接收确定的字符串类型并返回一个新的字符串，其中新返回的字符串删除了原字符串结尾的空白字符串。",
+    "example": "",
+    "solutionCode": "",
+    "solutionExplanation": ""
+  },
+  {
+    "id": "5117",
+    "dirname": "05117-medium-without",
+    "title": "Without",
+    "titleCN": "Without",
+    "difficulty": "medium",
+    "tags": [
+      "union",
+      "array"
+    ],
+    "description": "实现一个像 Lodash.without 函数一样的泛型 Without<T, U>，它接收数组类型的 T 和数字或数组类型的 U 为参数，会返回一个去除 U 中元素的数组 T。",
+    "example": "",
+    "solutionCode": "",
+    "solutionExplanation": ""
+  },
+  {
+    "id": "5140",
+    "dirname": "05140-medium-trunc",
+    "title": "Trunc",
+    "titleCN": "Trunc",
+    "difficulty": "medium",
+    "tags": [
+      "template-literal"
+    ],
+    "description": "Implement the type version of ```Math.trunc```, which takes string or number and returns the integer part of a number by removing any fractional digits.",
+    "example": "",
+    "solutionCode": "",
+    "solutionExplanation": ""
+  },
+  {
+    "id": "5153",
+    "dirname": "05153-medium-indexof",
+    "title": "IndexOf",
+    "titleCN": "IndexOf",
+    "difficulty": "medium",
+    "tags": [
+      "array"
+    ],
+    "description": "Implement the type version of Array.indexOf, indexOf<T, U> takes an Array T, any U and returns the index of the first U in Array T.",
+    "example": "",
+    "solutionCode": "",
+    "solutionExplanation": ""
+  },
+  {
+    "id": "5181",
+    "dirname": "05181-hard-mutable-keys",
+    "title": "Mutable Keys",
+    "titleCN": "Mutable Keys",
+    "difficulty": "hard",
+    "tags": [
+      "utils"
+    ],
+    "description": "Implement the advanced util type MutableKeys<T>, which picks all the mutable (not readonly) keys into a union.",
+    "example": "",
+    "solutionCode": "",
+    "solutionExplanation": ""
+  },
+  {
+    "id": "5310",
+    "dirname": "05310-medium-join",
+    "title": "Join",
+    "titleCN": "Join",
+    "difficulty": "medium",
+    "tags": [
+      "array"
+    ],
+    "description": "Implement the type version of Array.join, Join<T, U> takes an Array T, string or number U and returns the Array T with U stitching up.",
+    "example": "",
+    "solutionCode": "",
+    "solutionExplanation": ""
+  },
+  {
+    "id": "5317",
+    "dirname": "05317-medium-lastindexof",
+    "title": "LastIndexOf",
+    "titleCN": "LastIndexOf",
+    "difficulty": "medium",
+    "tags": [
+      "array"
+    ],
+    "description": "实现类型版本的 ```Array.lastIndexOf```, ```LastIndexOf<T, U>```  接受数组 ```T```, any 类型 ```U```, 如果 ```U``` 存在于 ```T``` 中, 返回 ```U``` 在数组 ```T``` 中最后一个位置的索引, 不存在则返回 ```-1```",
+    "example": "",
+    "solutionCode": "",
+    "solutionExplanation": ""
+  },
+  {
+    "id": "5360",
+    "dirname": "05360-medium-unique",
+    "title": "Unique",
+    "titleCN": "Unique",
+    "difficulty": "medium",
+    "tags": [
+      "array"
+    ],
+    "description": "实现类型版本的 Lodash.uniq 方法, Unique<T> 接收数组类型 T, 返回去重后的数组类型.",
+    "example": "",
+    "solutionCode": "",
+    "solutionExplanation": ""
+  },
+  {
+    "id": "5423",
+    "dirname": "05423-hard-intersection",
+    "title": "Intersection",
+    "titleCN": "Intersection",
+    "difficulty": "hard",
+    "tags": [
+      "union",
+      "array"
+    ],
+    "description": "Implement the type version of Lodash.intersection with a little difference. Intersection<T> takes an Array T containing several arrays or any type element including the union type, and returns a new u",
+    "example": "",
+    "solutionCode": "",
+    "solutionExplanation": ""
+  },
+  {
+    "id": "5821",
+    "dirname": "05821-medium-maptypes",
+    "title": "MapTypes",
+    "titleCN": "MapTypes",
+    "difficulty": "medium",
+    "tags": [
+      "map",
+      "object",
+      "utils"
+    ],
+    "description": "Implement `MapTypes<T, R>` which will transform types in object T to different types defined by type R which has the following structure",
+    "example": "",
+    "solutionCode": "",
+    "solutionExplanation": ""
+  },
+  {
+    "id": "6141",
+    "dirname": "06141-hard-binary-to-decimal",
+    "title": "Binary to Decimal",
+    "titleCN": "Binary to Decimal",
+    "difficulty": "hard",
+    "tags": [
+      "math"
+    ],
+    "description": "Implement `BinaryToDecimal<S>` which takes an exact string type `S` consisting 0 and 1 and returns an exact number type corresponding with `S` when `S` is regarded as a binary. You can assume that the",
+    "example": "",
+    "solutionCode": "",
+    "solutionExplanation": ""
+  },
+  {
+    "id": "6228",
+    "dirname": "06228-extreme-json-parser",
+    "title": "JSON Parser",
+    "titleCN": "JSON Parser",
+    "difficulty": "extreme",
+    "tags": [],
+    "description": "You're required to implement a type-level partly parser to parse JSON string into a object literal type.",
+    "example": "",
+    "solutionCode": "",
+    "solutionExplanation": ""
+  },
+  {
+    "id": "7258",
+    "dirname": "07258-hard-object-key-paths",
+    "title": "Object Key Paths",
+    "titleCN": "Object Key Paths",
+    "difficulty": "hard",
+    "tags": [
+      "object-keys"
+    ],
+    "description": "Get all possible paths that could be called by [_.get](https://lodash.com/docs/4.17.15#get) (a lodash function) to get the value of an object",
+    "example": "",
+    "solutionCode": "",
+    "solutionExplanation": ""
+  },
+  {
+    "id": "7544",
+    "dirname": "07544-medium-construct-tuple",
+    "title": "Construct Tuple",
+    "titleCN": "Construct Tuple",
+    "difficulty": "medium",
+    "tags": [
+      "tuple"
+    ],
+    "description": "构造一个给定长度的元组。",
+    "example": "",
+    "solutionCode": "",
+    "solutionExplanation": ""
+  },
+  {
+    "id": "7561",
+    "dirname": "07561-extreme-subtract",
+    "title": "Subtract",
+    "titleCN": "Subtract",
+    "difficulty": "extreme",
+    "tags": [
+      "tuple"
+    ],
+    "description": "Implement the type Subtraction that is ` - ` in Javascript by using BuildTuple.",
+    "example": "",
+    "solutionCode": "",
+    "solutionExplanation": ""
+  },
+  {
+    "id": "8640",
+    "dirname": "08640-medium-number-range",
+    "title": "Number Range",
+    "titleCN": "Number Range",
+    "difficulty": "medium",
+    "tags": [],
+    "description": "Sometimes we want to limit the range of numbers... For examples.",
+    "example": "",
+    "solutionCode": "",
+    "solutionExplanation": ""
+  },
+  {
+    "id": "8767",
+    "dirname": "08767-medium-combination",
+    "title": "Combination",
+    "titleCN": "Combination",
+    "difficulty": "medium",
+    "tags": [
+      "array",
+      "application",
+      "string"
+    ],
+    "description": "Given an array of strings, do Permutation & Combination. It's also useful for the prop types like video [controlsList](https://developer.mozilla.org/en-US/docs/Web/API/HTMLMediaElement/controlsList)",
+    "example": "",
+    "solutionCode": "",
+    "solutionExplanation": ""
+  },
+  {
+    "id": "8804",
+    "dirname": "08804-hard-two-sum",
+    "title": "Two Sum",
+    "titleCN": "Two Sum",
+    "difficulty": "hard",
+    "tags": [
+      "array",
+      "math"
+    ],
+    "description": "给定一个整数数组 nums 和一个目标整数 target, 如果 nums 数组中存在两个元素的和等于 target 返回 true, 否则返回 false",
+    "example": "",
+    "solutionCode": "",
+    "solutionExplanation": ""
+  },
+  {
+    "id": "8987",
+    "dirname": "08987-medium-subsequence",
+    "title": "Subsequence",
+    "titleCN": "Subsequence",
+    "difficulty": "medium",
+    "tags": [
+      "union"
+    ],
+    "description": "Given an array of unique elements, return all possible subsequences.",
+    "example": "",
+    "solutionCode": "",
+    "solutionExplanation": ""
+  },
+  {
+    "id": "9142",
+    "dirname": "09142-medium-checkrepeatedchars",
+    "title": "CheckRepeatedChars",
+    "titleCN": "CheckRepeatedChars",
+    "difficulty": "medium",
+    "tags": [
+      "union",
+      "string"
+    ],
+    "description": "判断一个string类型中是否有相同的字符",
+    "example": "",
+    "solutionCode": "",
+    "solutionExplanation": ""
+  },
+  {
+    "id": "9155",
+    "dirname": "09155-hard-validdate",
+    "title": "ValidDate",
+    "titleCN": "ValidDate",
+    "difficulty": "hard",
+    "tags": [],
+    "description": "Implement a type `ValidDate`, which takes an input type T and returns whether T is a valid date.",
+    "example": "",
+    "solutionCode": "",
+    "solutionExplanation": ""
+  },
+  {
+    "id": "9160",
+    "dirname": "09160-hard-assign",
+    "title": "Assign",
+    "titleCN": "Assign",
+    "difficulty": "hard",
+    "tags": [
+      "object",
+      "array"
+    ],
+    "description": "You have a target object and a source array of objects. You need to copy property from source to target, if it has the same property as the source, you should always keep the source property, and drop",
+    "example": "",
+    "solutionCode": "",
+    "solutionExplanation": ""
+  },
+  {
+    "id": "9286",
+    "dirname": "09286-medium-firstuniquecharindex",
+    "title": "FirstUniqueCharIndex",
+    "titleCN": "FirstUniqueCharIndex",
+    "difficulty": "medium",
+    "tags": [
+      "string"
+    ],
+    "description": "Given a string s, find the first non-repeating character in it and return its index. If it does not exist, return -1. (Inspired by [leetcode 387](https://leetcode.com/problems/first-unique-character-i",
+    "example": "",
+    "solutionCode": "",
+    "solutionExplanation": ""
+  },
+  {
+    "id": "9384",
+    "dirname": "09384-hard-maximum",
+    "title": "Maximum",
+    "titleCN": "Maximum",
+    "difficulty": "hard",
+    "tags": [
+      "array"
+    ],
+    "description": "Maximum",
+    "example": "",
+    "solutionCode": "",
+    "solutionExplanation": ""
+  },
+  {
+    "id": "9616",
+    "dirname": "09616-medium-parse-url-params",
+    "title": "Parse URL Params",
+    "titleCN": "Parse URL Params",
+    "difficulty": "medium",
+    "tags": [
+      "infer",
+      "string",
+      "template-literal"
+    ],
+    "description": "You're required to implement a type-level parser to parse URL params string into an Union.",
+    "example": "",
+    "solutionCode": "",
+    "solutionExplanation": ""
+  },
+  {
+    "id": "9775",
+    "dirname": "09775-hard-capitalize-nest-object-keys",
+    "title": "Capitalize Nest Object Keys",
+    "titleCN": "Capitalize Nest Object Keys",
+    "difficulty": "hard",
+    "tags": [
+      "object",
+      "array"
+    ],
+    "description": "Capitalize the key of the object, and if the value is an array, iterate through the objects in the array.",
+    "example": "",
+    "solutionCode": "",
+    "solutionExplanation": ""
+  },
+  {
+    "id": "9896",
+    "dirname": "09896-medium-get-middle-element",
+    "title": "GetMiddleElement",
+    "titleCN": "GetMiddleElement",
+    "difficulty": "medium",
+    "tags": [],
+    "description": "通过实现一个 ``GetMiddleElement`` 方法，获取数组的中间元素，用数组表示 如果数组的长度为奇数，则返回中间一个元素 如果数组的长度为偶数，则返回中间两个元素 ~~~ts type simple1 = GetMiddleElement<[1, 2, 3, 4, 5]>, // 返回 [3] type simple2 = GetMiddleElement<[1, 2, 3, 4, ",
+    "example": "",
+    "solutionCode": "",
+    "solutionExplanation": ""
+  },
+  {
+    "id": "9898",
+    "dirname": "09898-medium-zhao-chu-mu-biao-shu-zu-zhong-zhi-chu-xian-guo-yi-ci-de-yuan-su",
+    "title": "Appear only once",
+    "titleCN": "Appear only once",
+    "difficulty": "medium",
+    "tags": [],
+    "description": "找出目标数组中只出现过一次的元素。例如：输入[1,2,2,3,3,4,5,6,6,6]，输出[1,4,5]",
+    "example": "",
+    "solutionCode": "",
+    "solutionExplanation": ""
+  },
+  {
+    "id": "9989",
+    "dirname": "09989-medium-tong-ji-shu-zu-zhong-de-yuan-su-ge-shu",
+    "title": "Count Element Number To Object",
+    "titleCN": "Count Element Number To Object",
+    "difficulty": "medium",
+    "tags": [],
+    "description": "通过实现一个``CountElementNumberToObject``方法，统计数组中相同元素的个数 ~~~ts type Simple1 = CountElementNumberToObject<[]> // return {} type Simple2 = CountElementNumberToObject<[1,2,3,4,5]> /* return { 1: 1, 2: 1, 3: 1",
+    "example": "",
+    "solutionCode": "",
+    "solutionExplanation": ""
+  },
+  {
+    "id": "10969",
+    "dirname": "10969-medium-integer",
+    "title": "Integer",
+    "titleCN": "Integer",
+    "difficulty": "medium",
+    "tags": [
+      "template-literal"
+    ],
+    "description": "请完成类型 `Integer<T>`，类型 `T` 继承于 `number`，如果 `T` 是一个整数则返回它，否则返回 `never`。",
+    "example": "",
+    "solutionCode": "",
+    "solutionExplanation": ""
+  },
+  {
+    "id": "13580",
+    "dirname": "13580-hard-replace-union",
+    "title": "Replace Union",
+    "titleCN": "Replace Union",
+    "difficulty": "hard",
+    "tags": [],
+    "description": "Given an `union of types` and `array of type pairs` to replace (`[[string, number], [Date, null]]`), return a new union replaced with the `type pairs`.",
+    "example": "",
+    "solutionCode": "",
+    "solutionExplanation": ""
+  },
+  {
+    "id": "14080",
+    "dirname": "14080-hard-fizzbuzz",
+    "title": "FizzBuzz",
+    "titleCN": "FizzBuzz",
+    "difficulty": "hard",
+    "tags": [
+      "array",
+      "math",
+      "infer"
+    ],
+    "description": "The FizzBuzz problem is a classic test given in coding interviews. The task is simple:",
+    "example": "",
+    "solutionCode": "",
+    "solutionExplanation": ""
+  },
+  {
+    "id": "14188",
+    "dirname": "14188-hard-run-length-encoding",
+    "title": "Run-length encoding",
+    "titleCN": "Run-length encoding",
+    "difficulty": "hard",
+    "tags": [],
+    "description": "Given a `string` sequence of a letters f.e. `AAABCCXXXXXXY`. Return run-length encoded string `3AB2C6XY`. Also make a decoder for that string.",
+    "example": "",
+    "solutionCode": "",
+    "solutionExplanation": ""
+  },
+  {
+    "id": "15260",
+    "dirname": "15260-hard-tree-path-array",
+    "title": "Tree path array",
+    "titleCN": "Tree path array",
+    "difficulty": "hard",
+    "tags": [],
+    "description": "Create a type `Path` that represents validates a possible path of a tree under the form of an array.",
+    "example": "",
+    "solutionCode": "",
+    "solutionExplanation": ""
+  },
+  {
+    "id": "16259",
+    "dirname": "16259-medium-to-primitive",
+    "title": "ToPrimitive",
+    "titleCN": "ToPrimitive",
+    "difficulty": "medium",
+    "tags": [],
+    "description": "// 将类型为字面类型（标签类型）的属性，转换为基本类型。",
+    "example": "",
+    "solutionCode": "",
+    "solutionExplanation": ""
+  },
+  {
+    "id": "17973",
+    "dirname": "17973-medium-deepmutable",
+    "title": "DeepMutable",
+    "titleCN": "DeepMutable",
+    "difficulty": "medium",
+    "tags": [
+      "readonly",
+      "deep"
+    ],
+    "description": "实现一个通用的 DeepMutable<T> ，它使对象的每个属性，及其递归的子属性 - 可变。",
+    "example": "",
+    "solutionCode": "",
+    "solutionExplanation": ""
+  },
+  {
+    "id": "18142",
+    "dirname": "18142-medium-all",
+    "title": "All",
+    "titleCN": "All",
+    "difficulty": "medium",
+    "tags": [
+      "array"
+    ],
+    "description": "如果传入的第一个参数中所有元素都等于传入的第二个参数，则返回 true；如果有不匹配，则返回 false。",
+    "example": "",
+    "solutionCode": "",
+    "solutionExplanation": ""
+  },
+  {
+    "id": "18220",
+    "dirname": "18220-medium-filter",
+    "title": "Filter",
+    "titleCN": "Filter",
+    "difficulty": "medium",
+    "tags": [
+      "array",
+      "filter"
+    ],
+    "description": "Implement the type `Filter<T, Predicate>`. Here `T` is an array, and `Predicate` is a primitive type or a union of primitive types. The result should be an array that contains only those elements whos",
+    "example": "",
+    "solutionCode": "",
+    "solutionExplanation": ""
+  },
+  {
+    "id": "19458",
+    "dirname": "19458-hard-snakecase",
+    "title": "SnakeCase",
+    "titleCN": "SnakeCase",
+    "difficulty": "hard",
+    "tags": [
+      "template-literal",
+      "string"
+    ],
+    "description": "Create a `SnakeCase<T>` generic that turns a string formatted in **camelCase** into a string formatted in **snake_case**.",
+    "example": "",
+    "solutionCode": "",
+    "solutionExplanation": ""
+  },
+  {
+    "id": "19749",
+    "dirname": "19749-medium-isequal",
+    "title": "IsEqual",
+    "titleCN": "IsEqual",
+    "difficulty": "medium",
+    "tags": [
+      "utils"
+    ],
+    "description": "Implements the equal operator that returns a boolean for whether the two given types are equal.",
+    "example": "",
+    "solutionCode": "",
+    "solutionExplanation": ""
+  },
+  {
+    "id": "21104",
+    "dirname": "21104-medium-findall",
+    "title": "FindAll",
+    "titleCN": "FindAll",
+    "difficulty": "medium",
+    "tags": [
+      "template-literal",
+      "string"
+    ],
+    "description": "Given a pattern string P and a text string T, implement the type `FindAll<T, P>` that returns an Array that contains all indices (0-indexed) from T where P matches.",
+    "example": "",
+    "solutionCode": "",
+    "solutionExplanation": ""
+  },
+  {
+    "id": "21106",
+    "dirname": "21106-medium-zu-he-jian-lei-xing-combination-key-type",
+    "title": "Combination key type",
+    "titleCN": "Combination key type",
+    "difficulty": "medium",
+    "tags": [],
+    "description": "1. 把多个修饰键两两组合，但不可以出现相同的修饰键组合。 2. 提供的 `ModifierKeys` 中，前面的值比后面的值高，即 `cmd ctrl` 是可以的，但 `ctrl cmd` 是不允许的。",
+    "example": "",
+    "solutionCode": "",
+    "solutionExplanation": ""
+  },
+  {
+    "id": "21220",
+    "dirname": "21220-medium-permutations-of-tuple",
+    "title": "Permutations of Tuple",
+    "titleCN": "Permutations of Tuple",
+    "difficulty": "medium",
+    "tags": [
+      "union",
+      "tuple",
+      "conditional type",
+      "recursion"
+    ],
+    "description": "Given a generic tuple type `T extends unknown[]`, write a type which produces all permutations of `T` as a union.",
+    "example": "",
+    "solutionCode": "",
+    "solutionExplanation": ""
+  },
+  {
+    "id": "25170",
+    "dirname": "25170-medium-replace-first",
+    "title": "Replace First",
+    "titleCN": "Replace First",
+    "difficulty": "medium",
+    "tags": [],
+    "description": "Implement the type ReplaceFirst<T, S, R> which will replace the first occurrence of S in a tuple T with R. If no such S exists in T, the result should be T.",
+    "example": "",
+    "solutionCode": "",
+    "solutionExplanation": ""
+  },
+  {
+    "id": "25270",
+    "dirname": "25270-medium-transpose",
+    "title": "Transpose",
+    "titleCN": "Transpose",
+    "difficulty": "medium",
+    "tags": [
+      "array",
+      "math"
+    ],
+    "description": "The transpose of a matrix is an operator which flips a matrix over its diagonal; that is, it switches the row and column indices of the matrix A by producing another matrix, often denoted by A<sup>T</",
+    "example": "",
+    "solutionCode": "",
+    "solutionExplanation": ""
+  },
+  {
+    "id": "25747",
+    "dirname": "25747-hard-isnegativenumber",
+    "title": "IsNegativeNumber",
+    "titleCN": "IsNegativeNumber",
+    "difficulty": "hard",
+    "tags": [
+      "number",
+      "template-literal"
+    ],
+    "description": "Sometimes when working with numeric literals, we need to rule out (or enforce) that the provided number is a positive integer.",
+    "example": "",
+    "solutionCode": "",
+    "solutionExplanation": ""
+  },
+  {
+    "id": "26401",
+    "dirname": "26401-medium-json-schema-to-typescript",
+    "title": "JSON Schema to TypeScript",
+    "titleCN": "JSON Schema to TypeScript",
+    "difficulty": "medium",
+    "tags": [
+      "JSON"
+    ],
+    "description": "Implement the generic type JSONSchema2TS which will return the TypeScript type corresponding to the given JSON schema.",
+    "example": "",
+    "solutionCode": "",
+    "solutionExplanation": ""
+  },
+  {
+    "id": "27133",
+    "dirname": "27133-medium-square",
+    "title": "Square",
+    "titleCN": "Square",
+    "difficulty": "medium",
+    "tags": [
+      "tuple",
+      "array",
+      "math"
+    ],
+    "description": "Given a number, your type should return its square.",
+    "example": "",
+    "solutionCode": "",
+    "solutionExplanation": ""
+  },
+  {
+    "id": "27152",
+    "dirname": "27152-medium-triangular-number",
+    "title": "Triangular number",
+    "titleCN": "Triangular number",
+    "difficulty": "medium",
+    "tags": [
+      "tuple",
+      "array",
+      "math"
+    ],
+    "description": "Given a number N, find the Nth triangular number, i.e. `1 + 2 + 3 + ... + N`",
+    "example": "",
+    "solutionCode": "",
+    "solutionExplanation": ""
+  },
+  {
+    "id": "27862",
+    "dirname": "27862-medium-cartesianproduct",
+    "title": "CartesianProduct",
+    "titleCN": "CartesianProduct",
+    "difficulty": "medium",
+    "tags": [
+      "union"
+    ],
+    "description": "Given 2 sets (unions), return its Cartesian product in a set of tuples, e.g.",
+    "example": "",
+    "solutionCode": "",
+    "solutionExplanation": ""
+  },
+  {
+    "id": "27932",
+    "dirname": "27932-medium-mergeall",
+    "title": "MergeAll",
+    "titleCN": "MergeAll",
+    "difficulty": "medium",
+    "tags": [
+      "object",
+      "array",
+      "union"
+    ],
+    "description": "Merge variadic number of types into a new type. If the keys overlap, its values should be merged into an union.",
+    "example": "",
+    "solutionCode": "",
+    "solutionExplanation": ""
+  },
+  {
+    "id": "27958",
+    "dirname": "27958-medium-checkrepeatedtuple",
+    "title": "CheckRepeatedTuple",
+    "titleCN": "CheckRepeatedTuple",
+    "difficulty": "medium",
+    "tags": [],
+    "description": "判断一个元组类型中是否有相同的成员",
+    "example": "",
+    "solutionCode": "",
+    "solutionExplanation": ""
+  },
+  {
+    "id": "28143",
+    "dirname": "28143-hard-optionalundefined",
+    "title": "OptionalUndefined",
+    "titleCN": "OptionalUndefined",
+    "difficulty": "hard",
+    "tags": [],
+    "description": "Implement the util type `OptionalUndefined<T, Props>` that turns all the properties of `T` that can be `undefined`, into optional properties. In addition, a second -optional- generic `Props` can be pa",
+    "example": "",
+    "solutionCode": "",
+    "solutionExplanation": ""
+  },
+  {
+    "id": "28333",
+    "dirname": "28333-medium-public-type",
+    "title": "Public Type",
+    "titleCN": "Public Type",
+    "difficulty": "medium",
+    "tags": [
+      "object-keys"
+    ],
+    "description": "Remove the key starting with `_` from given type `T`.",
+    "example": "",
+    "solutionCode": "",
+    "solutionExplanation": ""
+  },
+  {
+    "id": "29650",
+    "dirname": "29650-medium-extracttoobject",
+    "title": "ExtractToObject",
+    "titleCN": "ExtractToObject",
+    "difficulty": "medium",
+    "tags": [
+      "object"
+    ],
+    "description": "Implement a type that extract prop value to the interface. The type takes the two arguments. The output should be an object with the prop values. Prop value is object.",
+    "example": "",
+    "solutionCode": "",
+    "solutionExplanation": ""
+  },
+  {
+    "id": "29785",
+    "dirname": "29785-medium-deep-omit",
+    "title": "Deep Omit",
+    "titleCN": "Deep Omit",
+    "difficulty": "medium",
+    "tags": [
+      "omit object-keys deep"
+    ],
+    "description": "Implement a type`DeepOmit`, Like Utility types [Omit](https://www.typescriptlang.org/docs/handbook/utility-types.html#omittype-keys), A type takes two arguments.",
+    "example": "",
+    "solutionCode": "",
+    "solutionExplanation": ""
+  },
+  {
+    "id": "30178",
+    "dirname": "30178-hard-unique-items",
+    "title": "Unique Items",
+    "titleCN": "Unique Items",
+    "difficulty": "hard",
+    "tags": [
+      "tuple",
+      "application",
+      "cif"
+    ],
+    "description": "Some concepts in TypeScript can not be described by types, but can be expressed through type constraints. For example, you can't define a type for positive numbers, but you can check whether a number ",
+    "example": "",
+    "solutionCode": "",
+    "solutionExplanation": ""
+  },
+  {
+    "id": "30301",
+    "dirname": "30301-medium-isodd",
+    "title": "IsOdd",
+    "titleCN": "IsOdd",
+    "difficulty": "medium",
+    "tags": [
+      "string"
+    ],
+    "description": "return true is a number is odd",
+    "example": "",
+    "solutionCode": "",
+    "solutionExplanation": ""
+  },
+  {
+    "id": "30430",
+    "dirname": "30430-medium-tower-of-hanoi",
+    "title": "Tower of hanoi",
+    "titleCN": "Tower of hanoi",
+    "difficulty": "medium",
+    "tags": [
+      "array"
+    ],
+    "description": "Simulate the solution for the Tower of Hanoi puzzle. Your type should take the number of rings as input an return an array of steps to move the rings from tower A to tower B using tower C as additiona",
+    "example": "",
+    "solutionCode": "",
+    "solutionExplanation": ""
+  },
+  {
+    "id": "30575",
+    "dirname": "30575-hard-bitwisexor",
+    "title": "BitwiseXOR",
+    "titleCN": "BitwiseXOR",
+    "difficulty": "hard",
+    "tags": [],
+    "description": "Implement ```BitwiseXOR<S1,S2>``` which takes two binary string literal type and returns a binary string that represents the bitwise XOR of S1 and S2",
+    "example": "",
+    "solutionCode": "",
+    "solutionExplanation": ""
+  },
+  {
+    "id": "30958",
+    "dirname": "30958-medium-pascals-triangle",
+    "title": "Pascal's triangle",
+    "titleCN": "Pascal's triangle",
+    "difficulty": "medium",
+    "tags": [
+      "array",
+      "math"
+    ],
+    "description": "Given a number N, construct the Pascal's triangle with N rows. [Wikipedia](https://en.wikipedia.org/wiki/Pascal%27s_triangle)",
+    "example": "",
+    "solutionCode": "",
+    "solutionExplanation": ""
+  },
+  {
+    "id": "30970",
+    "dirname": "30970-medium-shitariteraru",
+    "title": "IsFixedStringLiteralType",
+    "titleCN": "IsFixedStringLiteralType",
+    "difficulty": "medium",
+    "tags": [],
+    "description": "Sometimes you may want to determine whether a string literal is a definite type. For example, when you want to check whether the type specified as a class identifier is a fixed string literal type.",
+    "example": "",
+    "solutionCode": "",
+    "solutionExplanation": ""
+  },
+  {
+    "id": "31447",
+    "dirname": "31447-extreme-countreversepairs",
+    "title": "CountReversePairs",
+    "titleCN": "CountReversePairs",
+    "difficulty": "extreme",
+    "tags": [],
+    "description": "Given an integer array nums, return the number of reverse pairs in the array.",
+    "example": "",
+    "solutionCode": "",
+    "solutionExplanation": ""
+  },
+  {
+    "id": "31797",
+    "dirname": "31797-hard-sudoku",
+    "title": "Sudoku",
+    "titleCN": "Sudoku",
+    "difficulty": "hard",
+    "tags": [
+      "union",
+      "array",
+      "tuple",
+      "game"
+    ],
+    "description": "Write a type that verifies [Sudoku](https://en.wikipedia.org/wiki/Sudoku) game is solved. This is based off a [challenge](https://typehero.dev/challenge/sudoku) from Advent of Typescript 2023 by TypeH",
+    "example": "",
+    "solutionCode": "",
+    "solutionExplanation": ""
+  },
+  {
+    "id": "31824",
+    "dirname": "31824-hard-length-of-string-3",
+    "title": "Length of String 3",
+    "titleCN": "Length of String 3",
+    "difficulty": "hard",
+    "tags": [],
+    "description": "Implement a type `LengthOfString<S>` just like `Array#length`:",
+    "example": "",
+    "solutionCode": "",
+    "solutionExplanation": ""
+  },
+  {
+    "id": "31997",
+    "dirname": "31997-extreme-parameter-intersection",
+    "title": "Parameter Intersection",
+    "titleCN": "Parameter Intersection",
+    "difficulty": "extreme",
+    "tags": [
+      "parameters",
+      "array",
+      "variadic",
+      "optional",
+      "rest",
+      "intersection"
+    ],
+    "description": "Given two parameter arrays, compute a third tuple representing the type of args required to satisfy both of the original tuples.",
+    "example": "",
+    "solutionCode": "",
+    "solutionExplanation": ""
+  },
+  {
+    "id": "32427",
+    "dirname": "32427-hard-unbox",
+    "title": "Unbox",
+    "titleCN": "Unbox",
+    "difficulty": "hard",
+    "tags": [
+      "utils",
+      "promise",
+      "function",
+      "tuple",
+      "array"
+    ],
+    "description": "How can we build a type that \"unboxes\" arrays, functions, promises, and tuples?",
+    "example": "",
+    "solutionCode": "",
+    "solutionExplanation": ""
+  },
+  {
+    "id": "32532",
+    "dirname": "32532-hard-binary-addition",
+    "title": "Binary Addition",
+    "titleCN": "Binary Addition",
+    "difficulty": "hard",
+    "tags": [
+      "recursion",
+      "array"
+    ],
+    "description": "Implement `BinaryAdd` to add two binary numbers together. The numbers should not be translated out of binary at any point.",
+    "example": "",
+    "solutionCode": "",
+    "solutionExplanation": ""
+  },
+  {
+    "id": "33345",
+    "dirname": "33345-extreme-dynamic-route",
+    "title": "Dynamic Route",
+    "titleCN": "Dynamic Route",
+    "difficulty": "extreme",
+    "tags": [],
+    "description": "Given below routes, infer its dynamic params. | Route                          | Params Type Definition                                                                                     | |---------",
+    "example": "",
+    "solutionCode": "",
+    "solutionExplanation": ""
+  },
+  {
+    "id": "33763",
+    "dirname": "33763-hard-union-to-object-from-key",
+    "title": "Union to Object from key",
+    "titleCN": "Union to Object from key",
+    "difficulty": "hard",
+    "tags": [],
+    "description": "Find the object containing the key in the union type by the key. It  takes two parameters: a union of object types and a key name.",
+    "example": "",
+    "solutionCode": "",
+    "solutionExplanation": ""
+  },
+  {
+    "id": "34007",
+    "dirname": "34007-medium-compare-array-length",
+    "title": "Compare Array Length",
+    "titleCN": "Compare Array Length",
+    "difficulty": "medium",
+    "tags": [
+      "recursion",
+      "array"
+    ],
+    "description": "Implement `CompareArrayLength` to compare two array length(T & U).",
+    "example": "",
+    "solutionCode": "",
+    "solutionExplanation": ""
+  },
+  {
+    "id": "34286",
+    "dirname": "34286-hard-take-elements",
+    "title": "Take Elements",
+    "titleCN": "Take Elements",
+    "difficulty": "hard",
+    "tags": [
+      "array"
+    ],
+    "description": "Implement a type `Take<N, Arr>` that returns the first `N` elements from an array `Arr`. If `N` is negative, return the last `|N|` elements",
+    "example": "",
+    "solutionCode": "",
+    "solutionExplanation": ""
+  },
+  {
+    "id": "34857",
+    "dirname": "34857-medium-defined-partial-record",
+    "title": "Defined Partial Record",
+    "titleCN": "Defined Partial Record",
+    "difficulty": "medium",
+    "tags": [],
+    "description": "Defined Partial Record",
+    "example": "",
+    "solutionCode": "",
+    "solutionExplanation": ""
+  },
+  {
+    "id": "35045",
+    "dirname": "35045-medium-longest-common-prefix",
+    "title": "Longest Common Prefix",
+    "titleCN": "Longest Common Prefix",
+    "difficulty": "medium",
+    "tags": [],
+    "description": "Longest Common Prefix",
+    "example": "",
+    "solutionCode": "",
+    "solutionExplanation": ""
+  },
+  {
+    "id": "35191",
+    "dirname": "35191-medium-trace",
+    "title": "Trace",
+    "titleCN": "Trace",
+    "difficulty": "medium",
+    "tags": [],
+    "description": "The trace of a square matrix is the sum of the elements on its main diagonal. However, it's difficult to calculate the sum with type system. To make things simple, let's return the elements on the mai",
+    "example": "",
+    "solutionCode": "",
+    "solutionExplanation": ""
+  },
+  {
+    "id": "35252",
+    "dirname": "35252-medium-isalphabet",
+    "title": "IsAlphabet",
+    "titleCN": "IsAlphabet",
+    "difficulty": "medium",
+    "tags": [],
+    "description": "Determine if the given letter is an alphabet.",
+    "example": "",
+    "solutionCode": "",
+    "solutionExplanation": ""
+  },
+  {
+    "id": "35314",
+    "dirname": "35314-hard-valid-sudoku",
+    "title": "Valid Sudoku",
+    "titleCN": "Valid Sudoku",
+    "difficulty": "hard",
+    "tags": [
+      "array",
+      "math",
+      "game"
+    ],
+    "description": "Sudoku is a famous paper and pencil game. The goal of Sudoku is to fill a 9x9 grid with numbers so that each row, column and 3x3 section contain all of the digits between 1 and 9. You'll be given a fi",
+    "example": "",
+    "solutionCode": "",
+    "solutionExplanation": ""
+  },
+  {
+    "id": "35991",
+    "dirname": "35991-medium-myuppercase",
+    "title": "MyUppercase",
+    "titleCN": "MyUppercase",
+    "difficulty": "medium",
+    "tags": [],
+    "description": "Implement `Uppercase<T>`, convert all letter to uppercase",
+    "example": "",
+    "solutionCode": "",
+    "solutionExplanation": ""
+  }
+]

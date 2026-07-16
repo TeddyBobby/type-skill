@@ -1,26 +1,225 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+/* ============================================
+   Linear-inspired Dark Theme (Default)
+   ============================================ */
+
+:root,
+[data-theme="dark"] {
+  --bg: #08090a;
+  --bg-panel: #0f1011;
+  --bg-surface: #191a1b;
+  --fg-primary: #f7f8f8;
+  --fg-secondary: #d0d6e0;
+  --fg-muted: #8a8f98;
+  --fg-subtle: #62666d;
+  --accent: #5e6ad2;
+  --accent-hover: #828fff;
+  --border: rgba(255, 255, 255, 0.05);
+  --border-strong: rgba(255, 255, 255, 0.07);
+  --success: #27a644;
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+/* Light Theme */
+[data-theme="light"] {
+  --bg: #f7f8f8;
+  --bg-panel: #ffffff;
+  --bg-surface: #f3f4f5;
+  --fg-primary: #191a1b;
+  --fg-secondary: #3e3e44;
+  --fg-muted: #62666d;
+  --fg-subtle: #8a8f98;
+  --accent: #5e6ad2;
+  --accent-hover: #4f5ac7;
+  --border: rgba(0, 0, 0, 0.08);
+  --border-strong: rgba(0, 0, 0, 0.12);
+  --success: #10b981;
 }
+
+/* ============================================
+   Base
+   ============================================ */
+
+* { box-sizing: border-box; }
+
+body {
+  background: var(--bg);
+  color: var(--fg-secondary);
+  font-family: var(--font-sans), 'Inter', system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  font-feature-settings: 'cv01', 'ss03';
+  letter-spacing: -0.01em;
+}
+
+/* ============================================
+   Typography
+   ============================================ */
+
+h1, h2, h3, h4 {
+  color: var(--fg-primary);
+  letter-spacing: -0.02em;
+}
+
+/* ============================================
+   Scrollbar
+   ============================================ */
+
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 2px; }
+[data-theme="light"] ::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.15); }
+
+/* ============================================
+   Shared Component Styles via Utility Classes
+   ============================================ */
+
+/* Card surface */
+.card {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+}
+[data-theme="light"] .card {
+  background: var(--bg-panel);
+}
+
+/* Ghost button */
+.btn-ghost {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  color: var(--fg-secondary);
+  transition: all 150ms ease;
+}
+.btn-ghost:hover {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: var(--border-strong);
+  color: var(--fg-primary);
+}
+[data-theme="light"] .btn-ghost {
+  background: var(--bg-panel);
+}
+[data-theme="light"] .btn-ghost:hover {
+  background: var(--bg-surface);
+}
+
+/* Primary accent button */
+.btn-accent {
+  background: var(--accent);
+  border: 1px solid transparent;
+  border-radius: 5px;
+  color: #fff;
+  font-weight: 500;
+  transition: all 150ms ease;
+}
+.btn-accent:hover {
+  background: var(--accent-hover);
+}
+
+/* Difficulty badge */
+.badge-diff {
+  font-size: 10px;
+  font-weight: 500;
+  padding: 1px 6px;
+  border-radius: 3px;
+  border: 1px solid var(--border);
+}
+.badge-diff.warm  { color: #8a8f98; background: rgba(255,255,255,0.03); }
+.badge-diff.easy  { color: #27a644; background: rgba(39,166,68,0.08); border-color: rgba(39,166,68,0.15); }
+.badge-diff.medium { color: #d9a01a; background: rgba(217,160,26,0.08); border-color: rgba(217,160,26,0.15); }
+.badge-diff.hard  { color: #e05a4f; background: rgba(224,90,79,0.08); border-color: rgba(224,90,79,0.15); }
+.badge-diff.extreme { color: #a855f7; background: rgba(168,85,247,0.08); border-color: rgba(168,85,247,0.15); }
+
+/* Tag */
+.tag {
+  font-size: 10px;
+  padding: 1px 6px;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--fg-muted);
+}
+[data-theme="light"] .tag {
+  background: rgba(0, 0, 0, 0.04);
+}
+
+/* Filter tab */
+.tab {
+  font-size: 13px;
+  font-weight: 500;
+  padding: 4px 10px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  color: var(--fg-muted);
+  background: transparent;
+  transition: all 150ms ease;
+  white-space: nowrap;
+  letter-spacing: -0.01em;
+}
+.tab:hover {
+  color: var(--fg-secondary);
+  border-color: var(--border-strong);
+}
+.tab.active {
+  color: var(--fg-primary);
+  border-color: rgba(255,255,255,0.12);
+  background: rgba(255,255,255,0.06);
+}
+[data-theme="light"] .tab.active {
+  background: var(--bg-surface);
+  border-color: rgba(0,0,0,0.12);
+}
+.tab.bookmark-active {
+  color: #f59e0b;
+  border-color: rgba(245,158,11,0.2);
+  background: rgba(245,158,11,0.06);
+}
+
+/* Input */
+.input {
+  width: 100%;
+  padding: 8px 12px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--fg-primary);
+  font-size: 13px;
+  outline: none;
+  transition: border-color 150ms ease;
+}
+.input::placeholder { color: var(--fg-subtle); }
+.input:focus { border-color: rgba(255,255,255,0.15); }
+[data-theme="light"] .input {
+  background: var(--bg-panel);
+}
+[data-theme="light"] .input:focus { border-color: var(--accent); }
+
+/* Progress bar */
+.progress-track {
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 3px;
+  overflow: hidden;
+}
+.progress-fill {
+  height: 3px;
+  border-radius: 3px;
+  background: var(--accent);
+  transition: width 400ms ease;
+}
+
+/* Divider */
+.divider {
+  border-top: 1px solid var(--border);
+}
+
+/* Focus ring */
+*:focus-visible {
+  outline: 1.5px solid var(--accent);
+  outline-offset: 1px;
+}
+
+/* Textarea styling */
