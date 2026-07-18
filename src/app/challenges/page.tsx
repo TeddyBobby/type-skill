@@ -58,7 +58,7 @@ export default function ChallengesPage() {
 
         <div className="flex gap-1.5 mb-4 overflow-x-auto pb-0.5">
           <button onClick={() => setFilter('all')} className={`tab ${filter === 'all' ? 'active' : ''}`}>全部</button>
-          <button onClick={() => setFilter('bookmarked')} className={`tab ${filter === 'bookmarked' ? 'bookmark-active' : ''}`}>★ {bookmarkSet.size}</button>
+          <button onClick={() => setFilter('bookmarked')} className={`tab ${filter === 'bookmarked' ? 'bookmark-active' : ''}`}>&#9733; {bookmarkSet.size}</button>
           {(['warm','easy','medium','hard','extreme'] as const).map((d) => (
             <button key={d} onClick={() => setFilter(d)} className={`tab ${filter === d ? 'active' : ''}`}>{DIFFICULTY_LABELS[d]}</button>
           ))}

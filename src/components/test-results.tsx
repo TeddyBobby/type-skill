@@ -24,18 +24,19 @@ export function TestResults({ results, loading }: TestResultsProps) {
 
   return (
     <div className="card overflow-hidden">
-      <div className={`px-3 py-2 flex items-center gap-2 text-[13px] font-medium border-b ${
-        allPassed
-          ? 'bg-[rgba(39,166,68,0.06)] border-[rgba(39,166,68,0.1)] text-[#27a644]'
-          : 'bg-[rgba(224,90,79,0.06)] border-[rgba(224,90,79,0.1)] text-[#e05a4f]'
-      }`}>
-        {allPassed ? '🎉 全部通过！' : `❌ ${passedCount}/${results.length} 通过`}
+      <div className="px-3 py-2 flex items-center gap-2 text-[13px] font-medium border-b"
+        style={{
+          background: allPassed ? 'rgba(39,166,68,0.06)' : 'rgba(224,90,79,0.06)',
+          borderColor: allPassed ? 'rgba(39,166,68,0.1)' : 'rgba(224,90,79,0.1)',
+          color: allPassed ? 'var(--success)' : 'var(--danger)',
+        }}>
+        {allPassed ? '全部通过' : `${passedCount}/${results.length} 通过`}
       </div>
       <div className="divide-y" style={{ borderColor: 'var(--border)' }}>
         {results.map((r, i) => (
           <div key={i} className="px-3 py-1.5 flex items-center gap-2 text-[12px]">
-            <span className={r.passed ? 'text-[#27a644]' : 'text-[#e05a4f]'}>
-              {r.passed ? '✓' : '✗'}
+            <span style={{ color: r.passed ? 'var(--success)' : 'var(--danger)' }}>
+              {r.passed ? '\u2713' : '\u2717'}
             </span>
             <span className="text-[var(--fg-muted)]">{r.message}</span>
           </div>

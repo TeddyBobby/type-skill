@@ -15,11 +15,11 @@ export function ChallengeCard({ challenge, completed, bookmarked, onToggleBookma
     <div className="card flex items-start gap-3 p-3 hover:border-[var(--border-strong)] transition-all duration-150 group cursor-pointer">
       <Link href={`/challenge/${challenge.id}`} className="flex items-start gap-3 flex-1 min-w-0">
         {/* Number */}
-        <div className={`flex-shrink-0 w-7 h-7 rounded flex items-center justify-center text-xs font-mono font-medium ${
-          completed
-            ? 'bg-[rgba(39,166,68,0.1)] text-[#27a644] border border-[rgba(39,166,68,0.15)]'
-            : 'bg-[rgba(255,255,255,0.04)] text-[var(--fg-muted)]'
-        }`}>
+        <div className="flex-shrink-0 w-7 h-7 rounded flex items-center justify-center text-xs font-mono font-medium"
+          style={completed
+            ? { background: 'rgba(39,166,68,0.1)', color: 'var(--success)', border: '1px solid rgba(39,166,68,0.15)' }
+            : { background: 'rgba(255,255,255,0.04)', color: 'var(--fg-muted)' }
+          }>
           {completed ? '✓' : challenge.id}
         </div>
 

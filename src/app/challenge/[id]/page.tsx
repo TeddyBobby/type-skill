@@ -164,10 +164,10 @@ export default function ChallengePage() {
 
             {errors.length > 0 && (
               <div className="card p-3" style={{ borderColor: 'rgba(224,90,79,0.15)' }}>
-                <div className="text-[11px] font-medium text-[#e05a4f] mb-1">类型错误</div>
+                <div className="text-[11px] font-medium mb-1" style={{ color: 'var(--danger)' }}>类型错误</div>
                 {errors.map((e, i) => (
                   <div key={i} className="text-[11px] text-[var(--fg-muted)] font-mono leading-relaxed">
-                    <span className="text-[#e05a4f]">L{e.line}</span> {e.message}
+                    <span style={{ color: 'var(--danger)' }}>L{e.line}</span> {e.message}
                   </div>
                 ))}
               </div>
