@@ -45,7 +45,7 @@ export default function ChallengesPage() {
   return (
     <>
       <Header />
-      <main className="max-w-4xl mx-auto px-4 py-6 sm:py-8">
+      <main className="w-full max-w-4xl mx-auto px-4 py-6 sm:py-8">
         <div className="flex items-center justify-between mb-5">
           <div>
             <h1 className="text-[22px] font-semibold text-[var(--fg-primary)] tracking-tight">题库</h1>

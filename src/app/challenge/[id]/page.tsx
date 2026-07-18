@@ -77,7 +77,7 @@ export default function ChallengePage() {
   return (
     <>
       <Header />
-      <main className="max-w-7xl mx-auto px-4 py-3 sm:py-5">
+      <main className="w-full max-w-7xl mx-auto px-4 py-3 sm:py-5">
         {/* Top bar */}
         <div className="flex items-center gap-2 mb-3 flex-wrap text-[13px]">
           <Link href="/challenges" className="text-[var(--fg-muted)] hover:text-[var(--fg-secondary)] transition-colors">← 列表</Link>

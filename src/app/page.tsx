@@ -37,7 +37,7 @@ export default function Home() {
   return (
     <>
       <Header />
-      <main className="max-w-5xl mx-auto px-4">
+      <main className="w-full max-w-5xl mx-auto px-4">
 
         {/* ===== HERO ===== */}
         <section className="pt-20 sm:pt-28 pb-10 sm:pb-14 relative">
