@@ -138,7 +138,7 @@ export default function ChallengePage() {
                     <button onClick={() => setShowSolution(false)} className="text-[11px] text-[var(--fg-muted)] hover:text-[var(--fg-secondary)] px-1">收起</button>
                   </div>
                 </div>
-                <div className="overflow-hidden" style={{ height: Math.min(40 + meta.solutionCode.split('\n').length * 20, 320) }}>
+                <div className="overflow-auto" style={{ height: Math.min(40 + meta.solutionCode.split('\n').length * 20, 320) }}>
                   <CodeEditor value={meta.solutionCode} onChange={() => {}} readonly={true} light={light} />
                 </div>
                 {meta.solutionExplanation && (
