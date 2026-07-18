@@ -11,9 +11,10 @@ interface CodeEditorProps {
   onChange: (value: string) => void
   readonly?: boolean
   light?: boolean
+  height?: string
 }
 
-export function CodeEditor({ value, onChange, readonly, light }: CodeEditorProps) {
+export function CodeEditor({ value, onChange, readonly, light, height }: CodeEditorProps) {
   const [mounted, setMounted] = useState(false)
 
   useEffect(() => { setMounted(true) }, [])
@@ -31,17 +32,19 @@ export function CodeEditor({ value, onChange, readonly, light }: CodeEditorProps
   }, [])
 
   if (!mounted) {
+    const h = height || 'h-[350px] sm:h-[450px]'
     return (
-      <div className="h-[350px] sm:h-[450px] flex items-center justify-center text-[var(--fg-muted)] text-sm rounded-lg border" style={{ borderColor: 'var(--border)', background: light ? '#fafafa' : '#0d0d14' }}>
+      <div className={`${h} flex items-center justify-center text-[var(--fg-muted)] text-sm rounded-lg border`} style={{ borderColor: 'var(--border)', background: light ? '#fafafa' : '#0d0d14' }}>
         加载中...
       </div>
     )
   }
 
   const monacoTheme = light ? 'vs' : 'vs-dark'
+  const wrapperH = height || 'h-[350px] sm:h-[450px]'
 
   return (
-    <div className="rounded-lg overflow-hidden border h-[350px] sm:h-[450px]" style={{ borderColor: 'var(--border)' }}>
+    <div className={`rounded-lg overflow-hidden border ${wrapperH}`} style={{ borderColor: 'var(--border)' }}>
       <Editor
         height="100%" language="typescript" theme={monacoTheme}
         value={value} onChange={handleChange} onMount={handleMount}
