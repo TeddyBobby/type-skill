@@ -201,7 +201,7 @@
     "tags": [
       "array"
     ],
-    "description": "在此挑战中建议使用TypeScript 4.0",
+    "description": "实现一个`Last<T>`泛型，它接受一个数组`T`并返回其最后一个元素的类型。",
     "example": "",
     "solutionCode": "type Last<T extends any[]> = T extends [...any[], infer L] ? L : never",
     "solutionExplanation": "用可变元组 `[...any[], infer L]` 匹配除最后一个之外的所有元素，infer 推断最后一个。"
@@ -215,9 +215,9 @@
     "tags": [
       "array"
     ],
-    "description": "在此挑战中建议使用TypeScript 4.0",
+    "description": "实现一个`Pop<T>`泛型，它接受一个数组`T`并返回去掉最后一个元素后的数组类型。",
     "example": "",
-    "solutionCode": "type Pop<T extends any[]> = T extends [...infer Rest, any] ? Rest : never",
+    "solutionCode": "type Pop<T extends any[]> = T extends [...infer Rest, any] ? Rest : []",
     "solutionExplanation": "`[...infer Rest, any]` 推断除最后一个外的所有元素，丢弃最后一个。"
   },
   {
@@ -229,9 +229,9 @@
     "tags": [
       "array"
     ],
-    "description": "在此挑战中建议使用TypeScript 4.0",
+    "description": "柯里化是将带有多个参数的函数转换为每个只带单个参数的函数序列。请实现`Currying`类型，将函数类型转为柯里化版本。",
     "example": "",
-    "solutionCode": "type Currying<F> = F extends (...args: infer A) => infer R ? A extends [infer First, ...infer Rest] ? (arg: First) => Rest extends [] ? R : Currying<(...args: Rest) => R> : () => R : never",
+    "solutionCode": "declare function Currying<F extends Function>(fn: F):\n  F extends (...args: infer P) => infer R\n    ? P extends [infer H, ...infer T]\n      ? (arg: H) => T extends [] ? R : ReturnType<typeof Currying<(...args: T) => R>>\n      : () => R\n    : never",
     "solutionExplanation": "1. 用 infer 提取参数和返回值\n2. 逐个取出第一个参数作为新函数参数\n3. 剩余参数递归 Currying\n4. 参数为空时直接返回 R"
   },
   {

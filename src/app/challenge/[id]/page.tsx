@@ -68,6 +68,21 @@ export default function ChallengePage() {
   useEffect(() => { if (id && code !== initialCode && templateLoaded) { const t = setTimeout(() => saveCode(id, code), 500); return () => clearTimeout(t) } }, [code, id, initialCode, templateLoaded])
   useEffect(() => { if (id) { const t = setTimeout(() => saveNote(id, note), 500); return () => clearTimeout(t) } }, [note, id])
 
+  // 键盘快捷键：Cmd/Ctrl+Enter 检查答案，Escape 关闭答案面板
+  useEffect(() => {
+    const onKeyDown = (e: KeyboardEvent) => {
+      const isMod = e.metaKey || e.ctrlKey
+      if (isMod && e.key === 'Enter') {
+        e.preventDefault()
+        if (!checking && id) handleCheck()
+      } else if (e.key === 'Escape' && showSolution) {
+        setShowSolution(false)
+      }
+    }
+    window.addEventListener('keydown', onKeyDown)
+    return () => window.removeEventListener('keydown', onKeyDown)
+  }, [checking, id, showSolution, handleCheck])
+
   const handleReset = () => { setCode(initialCode); setResults([]); setErrors([]); setAllPassed(false) }
 
   if (!meta) return <><Header /><main className="max-w-4xl mx-auto px-4 py-20 text-center"><p className="text-[var(--fg-muted)]">题目不存在</p><Link href="/" className="text-[var(--accent)] mt-4 inline-block text-[13px]">← 返回</Link></main></>
