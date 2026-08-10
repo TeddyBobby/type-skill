@@ -237,5 +237,8 @@ h1, h2, h3, h4 {
   outline: 1.5px solid var(--accent);
   outline-offset: 1px;
 }
-
-/* Textarea styling */
+/* Reset textarea to inherit font — overrides browser defaults */
+textarea {
+  font-family: inherit;
+  font-size: inherit;
+}
