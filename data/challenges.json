@@ -1228,8 +1228,8 @@
     ],
     "description": "实现一个通用的`RequiredByKeys<T, K>`，它接收两个类型参数`T`和`K`。",
     "example": "",
-    "solutionCode": "",
-    "solutionExplanation": ""
+    "solutionCode": "type RequiredByKeys<T, K extends keyof T = keyof T> = Omit<T, K> & Required<Pick<T, K>> extends infer O ? { [P in keyof O]: O[P] } : never",
+    "solutionExplanation": "1. `K extends keyof T = keyof T`：不传 K 时默认把全部属性变必填\n2. `Omit<T, K>` 保留未选中的属性（维持原可选性），`Required<Pick<T, K>>` 把选中的属性变必填\n3. 两部分交叉后，用 `infer O` 配合 `{ [P in keyof O]: O[P] }` 展平成单一对象类型\n\n最后一步展平很关键：`Equal` 会把 `A & B` 交叉类型和扁平对象判为不相等，不展平测试过不了。"
   },
   {
     "id": "2793",
@@ -1243,8 +1243,8 @@
     ],
     "description": "实现一个通用的类型 ```Mutable<T>```，使类型 `T` 的全部属性可变（非只读）。",
     "example": "",
-    "solutionCode": "",
-    "solutionExplanation": ""
+    "solutionCode": "type Mutable<T extends object> = { -readonly [P in keyof T]: T[P] }",
+    "solutionExplanation": "1. `T extends object` 约束只接受对象类型（数组、元组也是对象），排除 string、number 等原始类型\n2. `-readonly` 是修饰符减法，移除属性的只读修饰符\n3. `[P in keyof T]` 映射遍历所有属性，值保持不变\n\n注意只去除顶层的 readonly，不做递归深拷贝。"
   },
   {
     "id": "2822",
@@ -1288,8 +1288,8 @@
     ],
     "description": "From ```T```, pick a set of properties whose type are not assignable to ```U```.",
     "example": "",
-    "solutionCode": "",
-    "solutionExplanation": ""
+    "solutionCode": "type OmitByType<T, U> = { [P in keyof T as T[P] extends U ? never : P]: T[P] }",
+    "solutionExplanation": "1. 用 `as` 子句在映射类型里重新映射键\n2. `T[P] extends U ? never : P`：属性值类型为 U 时，键映射为 never 从而被剔除\n3. 其余属性保留原类型\n\n`as` 重映射是 TS 4.1 引入的写法，比 `Exclude` + `Pick` 更直观。"
   },
   {
     "id": "2857",
@@ -1372,8 +1372,8 @@
     ],
     "description": "Implement the type version of ```Array.shift```",
     "example": "",
-    "solutionCode": "",
-    "solutionExplanation": ""
+    "solutionCode": "type Shift<T extends unknown[]> = T extends [infer _, ...infer R] ? R : []",
+    "solutionExplanation": "1. `T extends unknown[]` 约束 T 为数组/元组，排除 unknown 等非数组类型\n2. `[infer _, ...infer R]` 用 infer 分离首元素和剩余元组\n3. 返回剩余部分 R；空数组返回 []\n\n`_` 表示忽略首元素的类型。"
   },
   {
     "id": "3188",
@@ -1401,8 +1401,8 @@
     ],
     "description": "实现类型版本的数组反转 ```Array.reverse```",
     "example": "",
-    "solutionCode": "",
-    "solutionExplanation": ""
+    "solutionCode": "type Reverse<T extends unknown[]> = T extends [infer F, ...infer R] ? [...Reverse<R>, F] : T",
+    "solutionExplanation": "1. `[infer F, ...infer R]` 拆出首元素和剩余部分\n2. 递归反转剩余部分，再把首元素拼到末尾：`[...Reverse<R>, F]`\n3. 空数组直接返回自身，作为递归终点\n\n约束 `T extends unknown[]` 让 `Reverse<'string'>` 这类非数组输入直接报类型错误。"
   },
   {
     "id": "3196",
@@ -1573,8 +1573,8 @@
     ],
     "description": "Implement a type ```IsTuple```, which takes an input type ```T``` and returns whether ```T``` is tuple type.",
     "example": "",
-    "solutionCode": "",
-    "solutionExplanation": ""
+    "solutionCode": "type IsTuple<T> = [T] extends [never] ? false : T extends readonly unknown[] ? number extends T['length'] ? false : true : false",
+    "solutionExplanation": "1. `[T] extends [never]` 单独处理 never（never 会被条件类型分发导致误判）\n2. `T extends readonly unknown[]` 判断是否数组/元组（含 readonly）\n3. `number extends T['length']`：数组的 length 是 number，元组的 length 是字面量数字，据此区分数组和元组"
   },
   {
     "id": "4499",
@@ -1615,8 +1615,8 @@
     ],
     "description": "实现 `TrimRight<T>` ，它接收确定的字符串类型并返回一个新的字符串，其中新返回的字符串删除了原字符串结尾的空白字符串。",
     "example": "",
-    "solutionCode": "",
-    "solutionExplanation": ""
+    "solutionCode": "type TrimRight<S extends string> = S extends `${infer R}${' ' | '\\n' | '\\t'}` ? TrimRight<R> : S",
+    "solutionExplanation": "1. 模板字面量 `${infer R}${空白字符}` 匹配以空白结尾的字符串，剥离最后一个空白\n2. 递归处理，直到末尾不再是空白\n3. 空字符串不匹配模式，直接返回自身"
   },
   {
     "id": "5117",
@@ -1686,8 +1686,8 @@
     ],
     "description": "Implement the type version of Array.join, Join<T, U> takes an Array T, string or number U and returns the Array T with U stitching up.",
     "example": "",
-    "solutionCode": "",
-    "solutionExplanation": ""
+    "solutionCode": "type Join<T extends unknown[], U extends string | number = ','> = T extends [infer F, ...infer R] ? R['length'] extends 0 ? `${F & string}` : `${F & string}${U}${Join<R, U>}` : ''",
+    "solutionExplanation": "1. `[infer F, ...infer R]` 拆出首元素\n2. `R['length'] extends 0` 判断是否最后一个元素，是则不加分隔符\n3. `F & string` 保证模板字面量能正确拼接；U 默认分隔符为 ','\n\n空数组直接返回空字符串。"
   },
   {
     "id": "5317",
@@ -1745,8 +1745,8 @@
     ],
     "description": "Implement `MapTypes<T, R>` which will transform types in object T to different types defined by type R which has the following structure",
     "example": "",
-    "solutionCode": "",
-    "solutionExplanation": ""
+    "solutionCode": "type MapTypes<T, R extends { mapFrom: unknown; mapTo: unknown }> = { [K in keyof T]: T[K] extends R['mapFrom'] ? R extends { mapFrom: T[K] } ? R['mapTo'] : never : T[K] }",
+    "solutionExplanation": "1. `T[K] extends R['mapFrom']` 判断该属性值类型是否在映射表中\n2. `R extends { mapFrom: T[K] }` 让联合类型 R 分布式展开，精确匹配到对应的那条映射\n3. 命中则取该条的 `mapTo`，未命中保留原类型\n\n第 2 步的分布式条件是关键：直接写 `R['mapTo']` 会把联合类型里所有 mapTo 混在一起。"
   },
   {
     "id": "6141",
@@ -2021,8 +2021,8 @@
     ],
     "description": "请完成类型 `Integer<T>`，类型 `T` 继承于 `number`，如果 `T` 是一个整数则返回它，否则返回 `never`。",
     "example": "",
-    "solutionCode": "",
-    "solutionExplanation": ""
+    "solutionCode": "type Integer<T extends number> = number extends T ? never : `${T}` extends `${number}.${number}` ? never : T",
+    "solutionExplanation": "1. `number extends T` 排除宽泛的 number 类型\n2. `${T}` 转字符串后判断是否含小数点：`${number}.${number}` 匹配小数\n3. 整数直接返回 T\n\nTS 会把 `1.0`、`28.00` 这类整数形式规范化为 `1`、`28`，所以能被正确识别。"
   },
   {
     "id": "13580",
