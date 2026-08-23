@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from 'next'
 import { Geist, Geist_Mono } from 'next/font/google'
+import { SITE_URL } from '@/lib/site'
 import './globals.css'
 
 const geistSans = Geist({
@@ -22,7 +23,7 @@ export const viewport: Viewport = {
 }
 
 export const metadata: Metadata = {
-  metadataBase: new URL('https://type-dojo.vercel.app'),
+  metadataBase: new URL(SITE_URL),
   title: {
     default: 'TypeSkill — 练出来的类型功底',
     template: '%s — TypeSkill',

@@ -1,13 +1,12 @@
 import type { MetadataRoute } from 'next'
 import { getAllChallenges } from '@/lib/challenges'
-
-const BASE_URL = 'https://type-dojo.vercel.app'
+import { SITE_URL } from '@/lib/site'
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const challenges = getAllChallenges()
 
   const challengeUrls: MetadataRoute.Sitemap = challenges.map((c) => ({
-    url: `${BASE_URL}/challenge/${c.id}`,
+    url: `${SITE_URL}/challenge/${c.id}`,
     lastModified: new Date(),
     changeFrequency: 'monthly' as const,
     priority: 0.6,
@@ -15,13 +14,13 @@ export default function sitemap(): MetadataRoute.Sitemap {
 
   return [
     {
-      url: BASE_URL,
+      url: SITE_URL,
       lastModified: new Date(),
       changeFrequency: 'weekly',
       priority: 1,
     },
     {
-      url: `${BASE_URL}/challenges`,
+      url: `${SITE_URL}/challenges`,
       lastModified: new Date(),
       changeFrequency: 'daily',
       priority: 0.9,
