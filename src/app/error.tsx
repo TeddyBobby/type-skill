@@ -5,10 +5,10 @@ import { Header } from '@/components/header'
 
 export default function Error({
   error,
-  unstable_retry,
+  retry,
 }: {
   error: Error & { digest?: string }
-  unstable_retry: () => void
+  retry: () => void
 }) {
   useEffect(() => {
     console.error('[TypeSkill] 页面错误:', error)
@@ -78,7 +78,7 @@ export default function Error({
           {/* Actions */}
           <div className="flex items-center justify-center gap-2">
             <button
-              onClick={() => unstable_retry()}
+              onClick={() => retry()}
               className="inline-flex items-center gap-1.5 px-4 py-2 rounded-md text-[13px] font-medium text-white transition-colors hover:opacity-90"
               style={{ background: 'var(--accent)' }}
             >
