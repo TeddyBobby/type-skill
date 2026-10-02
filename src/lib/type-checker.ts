@@ -3,6 +3,7 @@ import ts from 'typescript'
 import { readFileSync, existsSync, readdirSync, writeFileSync, unlinkSync } from 'node:fs'
 import { join } from 'node:path'
 import { tmpdir } from 'node:os'
+import { randomUUID } from 'node:crypto'
 
 const QUESTIONS_DIR = join(process.cwd(), 'data', 'questions')
 const TEST_UTILS_PATH = join(process.cwd(), 'data', 'test-utils.ts')
@@ -42,7 +43,8 @@ export function checkType(challengeId: string, userCode: string): TypeCheckResul
   const testUtilsLines = testUtilsSource.split('\n').length
 
   // 写入临时文件再编译（确保 TypeScript 能正确加载 lib 文件）
-  const tmpFile = join(tmpdir(), `type-dojo-check-${challengeId}.ts`)
+  // 文件名带上 randomUUID，避免并发请求（或同一用户连续点击）复用同一路径导致竞态
+  const tmpFile = join(tmpdir(), `type-dojo-check-${challengeId}-${randomUUID()}.ts`)
   const combinedSource = [testUtilsSource, userCode, modifiedTestCases].join('\n')
   writeFileSync(tmpFile, combinedSource, 'utf-8')
 

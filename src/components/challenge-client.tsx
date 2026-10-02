@@ -54,7 +54,14 @@ export function ChallengeClient({ id }: { id: string }) {
     if (!id) return; setChecking(true); setResults([]); setErrors([])
     try {
       const res = await fetch('/api/check', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ code, challengeId: id }) })
-      const data: CheckResponse = await res.json()
+      // 服务端可能返回 400/500 及 `{ error }` 结构，而非 CheckResponse。
+      // 若不判断 res.ok 直接读 results/errors，会拿到 undefined 并导致渲染时崩溃。
+      const data: (CheckResponse & { error?: string }) | null = await res.json().catch(() => null)
+      if (!res.ok || !data) {
+        setAllPassed(false)
+        setErrors([{ line: 0, column: 0, message: data?.error ?? `请求失败 (HTTP ${res.status})` }])
+        return
+      }
       setResults(data.results); setErrors(data.errors)
       if (data.success && data.results.length > 0) { setAllPassed(true); markChallengeCompleted(id); setCompleted(true) }
       else setAllPassed(false)
