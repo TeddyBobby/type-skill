@@ -91,6 +91,23 @@ export function checkType(challengeId: string, userCode: string): TypeCheckResul
   }
 }
 
+// type-challenges/utils 中用于「必须通过类型检查」的断言辅助类型。
+// 题目用例里一行出现任意一个即视为一个正向测试用例。
+// 只用 Expect< 会漏掉 IsTrue / IsFalse / ExpectTrue / ExpectFalse / ExpectExtends 等
+// 写法，导致部分题目（如 00553、15260、00651）解析出 0 个用例，永远无法标记通关。
+const ASSERTION_HELPERS = [
+  'Expect<',
+  'ExpectTrue<',
+  'ExpectFalse<',
+  'IsTrue<',
+  'IsFalse<',
+  'IsAny<',
+  'NotAny<',
+  'NotEqual<',
+  'ExpectExtends<',
+  'Alike<',
+]
+
 function parseTestResults(
   testSource: string,
   allPassed: boolean
@@ -118,12 +135,12 @@ function parseTestResults(
 
     if (i > 0 && lines[i - 1].trim().startsWith('// @ts-expect-error')) continue
 
-    if (trimmed.includes('Expect<') && !trimmed.startsWith('//')) {
+    if (!trimmed.startsWith('//') && ASSERTION_HELPERS.some((a) => trimmed.includes(a))) {
       caseIndex++
       let desc = `Case ${caseIndex}`
       const commentMatch = trimmed.match(/\/\/\s*(.+)/)
       if (commentMatch) desc = commentMatch[1]
-      else if (trimmed.includes('Expect<Equal<')) desc = `Case ${caseIndex}: 类型相等验证`
+      else if (trimmed.includes('Equal<')) desc = `Case ${caseIndex}: 类型相等验证`
       else desc = `Case ${caseIndex}: 类型验证`
       results.push({ passed: allPassed, caseIndex, message: desc })
     }
