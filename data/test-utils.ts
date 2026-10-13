@@ -15,8 +15,9 @@ export type NotEqual<X, Y> = true extends Equal<X, Y> ? false : true
 
 export type ExpectExtends<VALUE, EXPECTED> = EXPECTED extends VALUE ? true : false
 
-export type IsAny<T> = 0 extends (1 & T) ? true : false
-export type NotAny<T> = true extends IsAny<T> ? false : true
+// 注意：IsAny / NotAny 不在全局提供。它们与题目本身要求实现的同名类型冲突
+// （例如 00223 IsAny 题目要求用户自己实现 IsAny）。改为在 type-checker.ts 中
+// 按需注入：只有当测试用例 import 了这些名字时才注入对应定义。
 
 export type Debug<T> = { [K in keyof T]: T[K] }
 export type MergeInsertions<T> =

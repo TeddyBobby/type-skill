@@ -34,9 +34,26 @@ export function checkType(challengeId: string, userCode: string): TypeCheckResul
   const testCasesSource = readFileSync(testCasesPath, 'utf-8')
   const testUtilsSource = readFileSync(TEST_UTILS_PATH, 'utf-8')
 
+  // IsAny / NotAny 与题目本身要求实现的同名类型冲突（如 00223 IsAny），
+  // 因此不放在 test-utils.ts 全局提供，改为按需注入：仅当测试用例 import
+  // 了这些名字时才注入对应定义。NotAny 依赖 IsAny，故注入 NotAny 时一并注入 IsAny。
+  const HELPER_TYPES: Record<string, string> = {
+    IsAny: 'type IsAny<T> = 0 extends (1 & T) ? true : false',
+    NotAny: 'type NotAny<T> = true extends IsAny<T> ? false : true',
+  }
+  const HELPER_ORDER = ['IsAny', 'NotAny'] as const
+
   const modifiedTestCases = testCasesSource.replace(
-    /import\s+type\s+\{[^}]+\}\s+from\s+['"]@type-challenges\/utils['"];?\s*/,
-    '// type-challenges utils loaded from test-utils\n'
+    /import\s+type\s+\{([^}]+)\}\s+from\s+['"]@type-challenges\/utils['"];?\s*/,
+    (_match, names: string) => {
+      const imported = new Set(names.split(',').map((n) => n.trim()))
+      if (imported.has('NotAny')) imported.add('IsAny') // 依赖注入
+      const injected = HELPER_ORDER
+        .filter((n) => imported.has(n))
+        .map((n) => HELPER_TYPES[n])
+        .join('\n')
+      return '// type-challenges utils loaded from test-utils\n' + (injected ? injected + '\n' : '')
+    }
   )
 
   const userCodeLines = userCode.split('\n').length
