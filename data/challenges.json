@@ -1475,8 +1475,8 @@
     ],
     "description": "Implement the type version of binary tree inorder traversal.",
     "example": "",
-    "solutionCode": "",
-    "solutionExplanation": ""
+    "solutionCode": "interface TreeNode {\n  val: number\n  left: TreeNode | null\n  right: TreeNode | null\n}\ntype InorderTraversal<T extends TreeNode | null> = T extends TreeNode ? [...InorderTraversal<T['left']>, T['val'], ...InorderTraversal<T['right']>] : []",
+    "solutionExplanation": "1. 约束 T 为 TreeNode | null，空节点返回空数组 []\n2. 对非空节点按「左子树 → 根 → 右子树」顺序递归\n3. 用元组展开 [...左, 根值, ...右] 拼接出中序遍历序列"
   },
   {
     "id": "4037",
@@ -1714,8 +1714,8 @@
     ],
     "description": "实现类型版本的 Lodash.uniq 方法, Unique<T> 接收数组类型 T, 返回去重后的数组类型.",
     "example": "",
-    "solutionCode": "",
-    "solutionExplanation": ""
+    "solutionCode": "type Includes<T extends unknown[], U> = T extends [infer F, ...infer R] ? (Equal<F, U> extends true ? true : Includes<R, U>) : false\ntype Unique<T extends unknown[], R extends unknown[] = []> = T extends [infer F, ...infer Rest] ? (Includes<R, F> extends true ? Unique<Rest, R> : Unique<Rest, [...R, F]>) : R",
+    "solutionExplanation": "1. 辅助 Includes<R, F> 判断元素 F 是否已存在于结果 R\n2. 遍历输入元组，头部元素已存在则跳过，否则追加到结果\n3. 必须用 Equal 而非 extends：Equal 能区分 unknown/any/never 这类互相可赋值的类型"
   },
   {
     "id": "5423",
@@ -1885,8 +1885,8 @@
     ],
     "description": "判断一个string类型中是否有相同的字符",
     "example": "",
-    "solutionCode": "",
-    "solutionExplanation": ""
+    "solutionCode": "type CheckRepeatedChars<T extends string> = T extends `${infer F}${infer R}` ? (R extends `${string}${F}${string}` ? true : CheckRepeatedChars<R>) : false",
+    "solutionExplanation": "1. 逐个取出首字符 F，判断它是否在剩余子串 R 中再次出现\n2. `${string}${F}${string}` 模板字面量匹配「F 出现在任意位置」\n3. 命中即返回 true，否则对剩余子串递归；空串返回 false"
   },
   {
     "id": "9155",
@@ -1926,8 +1926,8 @@
     ],
     "description": "Given a string s, find the first non-repeating character in it and return its index. If it does not exist, return -1. (Inspired by [leetcode 387](https://leetcode.com/problems/first-unique-character-i",
     "example": "",
-    "solutionCode": "",
-    "solutionExplanation": ""
+    "solutionCode": "type FirstUniqueCharIndex<T extends string, A extends string[] = []> = T extends `${infer F}${infer R}` ? (F extends A[number] ? FirstUniqueCharIndex<R, [...A, F]> : (R extends `${string}${F}${string}` ? FirstUniqueCharIndex<R, [...A, F]> : A['length'])) : -1",
+    "solutionExplanation": "1. 维护已扫描字符列表 A 作前缀，逐个取出首字符 F\n2. 若 F 已在前缀 A 中出现、或仍在剩余子串 R 中出现，则不是唯一字符，继续向后\n3. 首次遇到「前后都不再出现」的字符时，A['length'] 就是其下标；遍历完仍未找到返回 -1"
   },
   {
     "id": "9384",
@@ -1995,8 +1995,8 @@
     "tags": [],
     "description": "找出目标数组中只出现过一次的元素。例如：输入[1,2,2,3,3,4,5,6,6,6]，输出[1,4,5]",
     "example": "",
-    "solutionCode": "",
-    "solutionExplanation": ""
+    "solutionCode": "type CountOcc<Arr extends any[], U, C extends unknown[] = []> = Arr extends [infer F, ...infer R] ? (Equal<F, U> extends true ? CountOcc<R, U, [...C, unknown]> : CountOcc<R, U, C>) : C['length']\ntype FindEles<T extends any[], Orig extends any[] = T, R extends any[] = []> = T extends [infer F, ...infer Rest] ? (CountOcc<Orig, F> extends 1 ? FindEles<Rest, Orig, [...R, F]> : FindEles<Rest, Orig, R>) : R",
+    "solutionExplanation": "1. 辅助 CountOcc<Orig, F> 统计元素 F 在原始数组中出现的次数（Equal 精确匹配）\n2. 遍历数组，出现次数恰好为 1 的元素保留，其余丢弃\n3. 保留原始数组引用 Orig 做全量计数，避免边遍历边计数导致漏判"
   },
   {
     "id": "9989",
@@ -2007,8 +2007,8 @@
     "tags": [],
     "description": "通过实现一个``CountElementNumberToObject``方法，统计数组中相同元素的个数 ~~~ts type Simple1 = CountElementNumberToObject<[]> // return {} type Simple2 = CountElementNumberToObject<[1,2,3,4,5]> /* return { 1: 1, 2: 1, 3: 1",
     "example": "",
-    "solutionCode": "",
-    "solutionExplanation": ""
+    "solutionCode": "type Flatten<T extends any[], Acc extends any[] = []> = T extends [infer F, ...infer R] ? (F extends any[] ? Flatten<R, [...Acc, ...Flatten<F>]> : Flatten<R, [...Acc, F]>) : Acc\ntype CountEl<Arr extends any[], U, C extends unknown[] = []> = Arr extends [infer F, ...infer R] ? (Equal<F, U> extends true ? CountEl<R, U, [...C, unknown]> : CountEl<R, U, C>) : C['length']\ntype CountElementNumberToObject<T extends any[], F extends any[] = Flatten<T>> = { [K in F[number]]: CountEl<F, K> }",
+    "solutionExplanation": "1. 先用 Flatten 拍平嵌套数组，得到全部叶子元素\n2. 用映射类型 { [K in F[number]]: ... } 以元素为键建对象，CountEl 统计每个键的出现次数\n3. 字符串键 '1' 会被 TS 规范化为数字键 1（匹配测试预期）；never 元素拍平后消失，映射类型自然得到 {}"
   },
   {
     "id": "10969",
@@ -2085,8 +2085,8 @@
     "tags": [],
     "description": "// 将类型为字面类型（标签类型）的属性，转换为基本类型。",
     "example": "",
-    "solutionCode": "",
-    "solutionExplanation": ""
+    "solutionCode": "type ToPrimitive<T> = T extends (...args: any[]) => any ? Function : T extends string ? string : T extends number ? number : T extends boolean ? boolean : T extends object ? { [K in keyof T]: ToPrimitive<T[K]> } : T",
+    "solutionExplanation": "1. 优先判断函数类型 → 返回 Function（否则会落入对象分支被错误映射）\n2. 字符串/数字/布尔字面量分别归一化为 string/number/boolean\n3. 对象递归映射每个属性；元组/数组经同态映射保持结构，只把叶子值转成原始类型"
   },
   {
     "id": "17973",
@@ -2100,8 +2100,8 @@
     ],
     "description": "实现一个通用的 DeepMutable<T> ，它使对象的每个属性，及其递归的子属性 - 可变。",
     "example": "",
-    "solutionCode": "",
-    "solutionExplanation": ""
+    "solutionCode": "type DeepMutable<T extends object> = { -readonly [K in keyof T]: T[K] extends (...args: any[]) => any ? T[K] : T[K] extends object ? DeepMutable<T[K]> : T[K] }",
+    "solutionExplanation": "1. -readonly 递归去除每一层对象的只读修饰符\n2. 函数类型直接原样返回，避免被映射成普通对象\n3. 对象/数组递归处理，叶子值原样保留；T extends object 约束让字符串/数字传参报错"
   },
   {
     "id": "18142",
@@ -2173,8 +2173,8 @@
     ],
     "description": "Given a pattern string P and a text string T, implement the type `FindAll<T, P>` that returns an Array that contains all indices (0-indexed) from T where P matches.",
     "example": "",
-    "solutionCode": "",
-    "solutionExplanation": ""
+    "solutionCode": "type FindAll<T extends string, P extends string, Acc extends unknown[] = [], R extends number[] = []> = P extends '' ? [] : T extends `${string}${infer Rest}` ? (T extends `${P}${string}` ? FindAll<Rest, P, [...Acc, unknown], [...R, Acc['length']]> : FindAll<Rest, P, [...Acc, unknown], R>) : R",
+    "solutionExplanation": "1. 用 Acc 元组长度记录当前扫描位置的下标\n2. 每步判断当前 T 是否以 P 开头，命中就把 Acc['length'] 记入结果 R\n3. 每次只剥离一个字符，支持重叠匹配（如 'AAAA' 中 'AA' 命中 0/1/2）；P 为空返回 []"
   },
   {
     "id": "21106",
@@ -2304,8 +2304,8 @@
     ],
     "description": "Given 2 sets (unions), return its Cartesian product in a set of tuples, e.g.",
     "example": "",
-    "solutionCode": "",
-    "solutionExplanation": ""
+    "solutionCode": "type CartesianProduct<T, U> = T extends T ? U extends U ? [T, U] : never : never",
+    "solutionExplanation": "1. `T extends T` 与 `U extends U` 让条件类型对联合类型逐成员分发\n2. 双层分发产生 [T, U] 的所有笛卡尔积组合\n3. never 作为空集在分发过程中被自动吸收"
   },
   {
     "id": "27932",
@@ -2358,8 +2358,8 @@
     ],
     "description": "Remove the key starting with `_` from given type `T`.",
     "example": "",
-    "solutionCode": "",
-    "solutionExplanation": ""
+    "solutionCode": "type PublicType<T extends object> = { [K in keyof T as K extends `_${string}` ? never : K]: T[K] }",
+    "solutionExplanation": "1. 用键重映射 `as K extends \\`_${string}\\` ? never : K` 过滤掉下划线开头的私有/受保护键\n2. 同态映射保留 readonly 与可选修饰符\n3. 只判断键名是否以下划线开头，与值的类型无关"
   },
   {
     "id": "29650",
@@ -2639,8 +2639,8 @@
     "tags": [],
     "description": "Longest Common Prefix",
     "example": "",
-    "solutionCode": "",
-    "solutionExplanation": ""
+    "solutionCode": "type AllStart<T extends string[], P extends string> = T extends [infer F extends string, ...infer R extends string[]] ? (F extends `${P}${string}` ? AllStart<R, P> : false) : true\ntype LongestCommonPrefix<T extends string[], P extends string = ''> = T extends [infer F extends string, ...infer R extends string[]] ? (F extends `${P}${infer C}${infer _}` ? (C extends '' ? P : (AllStart<T, `${P}${C}`> extends true ? LongestCommonPrefix<T, `${P}${C}`> : P)) : P) : P",
+    "solutionExplanation": "1. 辅助 AllStart<T, P> 判断所有字符串是否都以 P 为前缀\n2. 从第一个字符串逐字符扩展前缀 P，每扩展一次让全部字符串一起校验\n3. 首个字符取不到（F == P）时说明已到最短串末尾，返回当前 P；`infer R extends string[]` 显式约束 rest 类型，避免 TS 推断成 unknown[]"
   },
   {
     "id": "35191",
@@ -2663,8 +2663,8 @@
     "tags": [],
     "description": "Determine if the given letter is an alphabet.",
     "example": "",
-    "solutionCode": "",
-    "solutionExplanation": ""
+    "solutionCode": "type IsAlphabet<S extends string> = S extends `${infer F}${infer R}` ? (Uppercase<F> extends Lowercase<F> ? false : (R extends '' ? true : IsAlphabet<R>)) : false",
+    "solutionExplanation": "1. 逐个取出字符，用 Uppercase<F> extends Lowercase<F> 判断是否为字母\n2. 字母的大小写形式不同（'A' vs 'a'），数字/符号/emoji 大小写相同 → 返回 false\n3. 空串不匹配 ${infer F}${infer R}，直接返回 false"
   },
   {
     "id": "35314",
@@ -2691,7 +2691,7 @@
     "tags": [],
     "description": "Implement `Uppercase<T>`, convert all letter to uppercase",
     "example": "",
-    "solutionCode": "",
-    "solutionExplanation": ""
+    "solutionCode": "type UpperMap = { a: 'A', b: 'B', c: 'C', d: 'D', e: 'E', f: 'F', g: 'G', h: 'H', i: 'I', j: 'J', k: 'K', l: 'L', m: 'M', n: 'N', o: 'O', p: 'P', q: 'Q', r: 'R', s: 'S', t: 'T', u: 'U', v: 'V', w: 'W', x: 'X', y: 'Y', z: 'Z' }\ntype MyUppercase<S extends string> = S extends `${infer F}${infer R}` ? `${F extends keyof UpperMap ? UpperMap[F] : F}${MyUppercase<R>}` : S",
+    "solutionExplanation": "1. 用 UpperMap 字典把 a-z 映射到 A-Z，不用内置 Uppercase\n2. 逐个字符处理：命中字典键则替换，否则（数字/空格/换行/emoji）原样保留\n3. 递归拼接结果，空串直接返回"
   }
 ]
