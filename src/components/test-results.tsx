@@ -23,7 +23,8 @@ export function TestResults({ results, loading }: TestResultsProps) {
   const passedCount = results.filter((r) => r.passed).length
 
   return (
-    <div className="card overflow-hidden">
+    <div className="card overflow-hidden" role="status" aria-live="polite"
+      aria-label={`测试结果：${allPassed ? '全部通过' : `${passedCount}/${results.length} 通过`}`}>
       <div className="px-3 py-2 flex items-center gap-2 text-[13px] font-medium border-b"
         style={{
           background: allPassed ? 'rgba(39,166,68,0.06)' : 'rgba(224,90,79,0.06)',

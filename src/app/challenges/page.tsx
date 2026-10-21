@@ -53,14 +53,14 @@ export default function ChallengesPage() {
           </div>
         </div>
 
-        <input type="text" value={search} onChange={(e) => setSearch(e.target.value)}
-          placeholder="搜索题目…" className="input mb-3" />
+        <input type="search" value={search} onChange={(e) => setSearch(e.target.value)}
+          placeholder="搜索题目…" aria-label="搜索题目" className="input mb-3" />
 
-        <div className="flex gap-1.5 mb-4 overflow-x-auto pb-0.5">
-          <button onClick={() => setFilter('all')} className={`tab ${filter === 'all' ? 'active' : ''}`}>全部</button>
-          <button onClick={() => setFilter('bookmarked')} className={`tab ${filter === 'bookmarked' ? 'bookmark-active' : ''}`}>&#9733; {bookmarkSet.size}</button>
+        <div className="flex gap-1.5 mb-4 overflow-x-auto pb-0.5" role="group" aria-label="筛选">
+          <button onClick={() => setFilter('all')} aria-pressed={filter === 'all'} className={`tab ${filter === 'all' ? 'active' : ''}`}>全部</button>
+          <button onClick={() => setFilter('bookmarked')} aria-pressed={filter === 'bookmarked'} aria-label={`收藏（${bookmarkSet.size}）`} className={`tab ${filter === 'bookmarked' ? 'bookmark-active' : ''}`}>&#9733; {bookmarkSet.size}</button>
           {(['warm','easy','medium','hard','extreme'] as const).map((d) => (
-            <button key={d} onClick={() => setFilter(d)} className={`tab ${filter === d ? 'active' : ''}`}>{DIFFICULTY_LABELS[d]}</button>
+            <button key={d} onClick={() => setFilter(d)} aria-pressed={filter === d} className={`tab ${filter === d ? 'active' : ''}`}>{DIFFICULTY_LABELS[d]}</button>
           ))}
         </div>
 
@@ -83,9 +83,9 @@ export default function ChallengesPage() {
 
         {totalPages > 1 && (
           <div className="mt-4 flex items-center justify-center gap-2">
-            <button onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={page <= 1} className="tab disabled:opacity-30">←</button>
+            <button onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={page <= 1} aria-label="上一页" className="tab disabled:opacity-30">←</button>
             <span className="text-[12px] text-[var(--fg-muted)] tabular-nums px-1">{page} / {totalPages}</span>
-            <button onClick={() => setPage((p) => Math.min(totalPages, p + 1))} disabled={page >= totalPages} className="tab disabled:opacity-30">→</button>
+            <button onClick={() => setPage((p) => Math.min(totalPages, p + 1))} disabled={page >= totalPages} aria-label="下一页" className="tab disabled:opacity-30">→</button>
           </div>
         )}
       </main>

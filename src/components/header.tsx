@@ -34,7 +34,7 @@ export function Header() {
         </Link>
         <nav className="flex items-center gap-3 text-[13px] text-[var(--fg-muted)]">
           <Link href="/challenges" className="hover:text-[var(--fg-secondary)] transition-colors">题库</Link>
-          <button onClick={toggleTheme} className="hover:text-[var(--fg-secondary)] transition-colors text-[11px] font-medium px-2 py-0.5 rounded border"
+          <button onClick={toggleTheme} aria-label="切换主题" className="hover:text-[var(--fg-secondary)] transition-colors text-[11px] font-medium px-2 py-0.5 rounded border"
             style={{ borderColor: 'var(--border)' }}>
             {theme === 'dark' ? 'Light' : 'Dark'}
           </button>

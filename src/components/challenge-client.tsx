@@ -105,8 +105,10 @@ export function ChallengeClient({ id }: { id: string }) {
           <span className={`badge-diff ${meta.difficulty}`}>{DIFFICULTY_LABELS[meta.difficulty]}</span>
           {completed && <span className="badge-diff easy">✓</span>}
           <button onClick={() => { setBookmarked(toggleBookmark(meta.id)) }}
+            aria-label={bookmarked ? '取消收藏' : '收藏'}
+            aria-pressed={bookmarked}
             className={`text-sm ${bookmarked ? 'text-amber-400' : 'text-[var(--fg-subtle)] hover:text-amber-400'}`}>
-            {bookmarked ? '★' : '☆'}
+            <span aria-hidden="true">{bookmarked ? '★' : '☆'}</span>
           </button>
           <div className="ml-auto flex items-center gap-1">
             {prevChallenge
@@ -152,7 +154,7 @@ export function ChallengeClient({ id }: { id: string }) {
                 <div className="px-3 py-2 border-b flex items-center justify-between" style={{ borderColor: 'rgba(94,106,210,0.1)', background: 'rgba(94,106,210,0.04)' }}>
                   <span className="text-[12px] font-medium text-[var(--accent)]">参考答案</span>
                   <div className="flex items-center gap-1">
-                    <button onClick={() => { navigator.clipboard.writeText(meta.solutionCode); setCopied(true); setTimeout(() => setCopied(false), 1500) }}
+                    <button onClick={() => { navigator.clipboard.writeText(meta.solutionCode).then(() => { setCopied(true); setTimeout(() => setCopied(false), 1500) }).catch(() => {}) }}
                       className="text-[11px] btn-ghost px-2 py-0.5">{copied ? '已复制' : '复制'}</button>
                     <button onClick={() => setShowSolution(false)} className="text-[11px] text-[var(--fg-muted)] hover:text-[var(--fg-secondary)] px-1">收起</button>
                   </div>

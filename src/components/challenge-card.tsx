@@ -46,10 +46,12 @@ export function ChallengeCard({ challenge, completed, bookmarked, onToggleBookma
 
       <div className="flex-shrink-0 flex items-center gap-0.5 self-center">
         <button onClick={(e) => { e.preventDefault(); e.stopPropagation(); onToggleBookmark() }}
+          aria-label={bookmarked ? '取消收藏' : '收藏'}
+          aria-pressed={bookmarked}
           className={`p-1 rounded transition-colors text-sm ${
             bookmarked ? 'text-amber-400' : 'text-[var(--fg-subtle)] hover:text-amber-400'
           }`}>
-          {bookmarked ? '★' : '☆'}
+          <span aria-hidden="true">{bookmarked ? '★' : '☆'}</span>
         </button>
       </div>
     </div>
