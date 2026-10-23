@@ -1,4 +1,4 @@
-// 题目元数据
+// 题目元数据（不含答案 —— 答案只在服务端，避免打包进客户端 bundle 造成泄题）
 export interface ChallengeMeta {
   id: string
   dirname: string
@@ -8,6 +8,11 @@ export interface ChallengeMeta {
   tags: string[]
   description: string
   example: string
+  hasSolution: boolean
+}
+
+// 题目答案（仅服务端持有，通过 /api/solution/[id] 按需下发）
+export interface ChallengeSolution {
   solutionCode: string
   solutionExplanation: string
 }

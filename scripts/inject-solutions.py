@@ -1,8 +1,15 @@
 #!/usr/bin/env python3
-"""Inject verified solutions + explanations into challenges.json (idempotent)."""
-import json
+"""Inject verified solutions + explanations into data/solutions.json (idempotent).
 
-PATH = '/Users/moyizhi/projects/type-dojo/data/challenges.json'
+答案独立存放在 solutions.json（仅服务端读取），challenges.json 只保留 hasSolution 标记，
+避免题解被打包进客户端 bundle 造成泄题。
+"""
+import json
+import os
+
+DATA_DIR = '/Users/moyizhi/projects/type-dojo/data'
+PATH = os.path.join(DATA_DIR, 'challenges.json')
+SOLUTIONS_PATH = os.path.join(DATA_DIR, 'solutions.json')
 
 SOLUTIONS = {
     "57": (
@@ -66,6 +73,11 @@ SOLUTIONS = {
 with open(PATH, encoding='utf-8') as f:
     data = json.load(f)
 
+solutions = {}
+if os.path.exists(SOLUTIONS_PATH):
+    with open(SOLUTIONS_PATH, encoding='utf-8') as f:
+        solutions = json.load(f)
+
 by_id = {c['id']: c for c in data}
 applied = 0
 for cid, (sol, exp) in SOLUTIONS.items():
@@ -73,12 +85,15 @@ for cid, (sol, exp) in SOLUTIONS.items():
     if c is None:
         print(f'WARN: challenge {cid} not found')
         continue
-    if c.get('solutionCode'):
+    if cid in solutions:
         print(f'SKIP {cid}: already has solution')
         continue
-    c['solutionCode'] = sol
-    c['solutionExplanation'] = exp
+    solutions[cid] = {'solutionCode': sol, 'solutionExplanation': exp}
+    c['hasSolution'] = True
     applied += 1
+
+with open(SOLUTIONS_PATH, 'w', encoding='utf-8') as f:
+    json.dump(solutions, f, ensure_ascii=False, indent=2)
 
 with open(PATH, 'w', encoding='utf-8') as f:
     json.dump(data, f, ensure_ascii=False, indent=2)

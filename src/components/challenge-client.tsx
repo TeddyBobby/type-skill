@@ -7,7 +7,7 @@ import { CodeEditor } from '@/components/code-editor'
 import { TestResults } from '@/components/test-results'
 import { getChallengeMeta, getAdjacentChallenges, DIFFICULTY_LABELS } from '@/lib/challenges'
 import { getSavedCode, saveCode, markChallengeCompleted, isChallengeCompleted, isBookmarked, toggleBookmark, getNote, saveNote } from '@/lib/storage'
-import type { CheckResponse } from '@/lib/types'
+import type { CheckResponse, ChallengeSolution } from '@/lib/types'
 
 export function ChallengeClient({ id }: { id: string }) {
   const meta = getChallengeMeta(id)
@@ -25,6 +25,8 @@ export function ChallengeClient({ id }: { id: string }) {
   const [note, setNote] = useState('')
   const [copied, setCopied] = useState(false)
   const [light, setLight] = useState(false)
+  const [solution, setSolution] = useState<ChallengeSolution | null>(null)
+  const [loadingSolution, setLoadingSolution] = useState(false)
 
   useEffect(() => {
     if (!id) return
@@ -38,7 +40,7 @@ export function ChallengeClient({ id }: { id: string }) {
     setBookmarked(isBookmarked(id))
     setNote(getNote(id))
     setLight(document.documentElement.getAttribute('data-theme') === 'light')
-    setAllPassed(false); setResults([]); setErrors([]); setShowSolution(false)
+    setAllPassed(false); setResults([]); setErrors([]); setShowSolution(false); setSolution(null); setLoadingSolution(false)
   }, [id])
 
   // 监听主题切换
@@ -88,6 +90,27 @@ export function ChallengeClient({ id }: { id: string }) {
   }, [checking, id, showSolution, handleCheck])
 
   const handleReset = () => { setCode(initialCode); setResults([]); setErrors([]); setAllPassed(false) }
+
+  // 答案按需下发：点「答案」时才请求，避免题解常驻客户端
+  const handleShowSolution = async () => {
+    if (solution) { setShowSolution(true); return }
+    if (!id) return
+    setLoadingSolution(true)
+    try {
+      const res = await fetch(`/api/solution/${id}`)
+      const data: (ChallengeSolution & { error?: string }) | null = await res.json().catch(() => null)
+      if (res.ok && data?.solutionCode) {
+        setSolution(data)
+      } else {
+        setSolution({ solutionCode: '// 该题目暂无答案', solutionExplanation: '' })
+      }
+    } catch {
+      setSolution({ solutionCode: '// 加载失败，请稍后重试', solutionExplanation: '' })
+    } finally {
+      setLoadingSolution(false)
+      setShowSolution(true)
+    }
+  }
 
   if (!meta) return <><Header /><main className="max-w-4xl mx-auto px-4 py-20 text-center"><p className="text-[var(--fg-muted)]">题目不存在</p><Link href="/" className="text-[var(--accent)] mt-4 inline-block text-[13px]">← 返回</Link></main></>
 
@@ -149,22 +172,22 @@ export function ChallengeClient({ id }: { id: string }) {
             </div>
 
             {/* Solution */}
-            {showSolution && meta.solutionCode && (
+            {showSolution && solution && (
               <div className="card overflow-hidden" style={{ borderColor: 'rgba(94,106,210,0.2)' }}>
                 <div className="px-3 py-2 border-b flex items-center justify-between" style={{ borderColor: 'rgba(94,106,210,0.1)', background: 'rgba(94,106,210,0.04)' }}>
                   <span className="text-[12px] font-medium text-[var(--accent)]">参考答案</span>
                   <div className="flex items-center gap-1">
-                    <button onClick={() => { navigator.clipboard.writeText(meta.solutionCode).then(() => { setCopied(true); setTimeout(() => setCopied(false), 1500) }).catch(() => {}) }}
+                    <button onClick={() => { navigator.clipboard.writeText(solution.solutionCode).then(() => { setCopied(true); setTimeout(() => setCopied(false), 1500) }).catch(() => {}) }}
                       className="text-[11px] btn-ghost px-2 py-0.5">{copied ? '已复制' : '复制'}</button>
                     <button onClick={() => setShowSolution(false)} className="text-[11px] text-[var(--fg-muted)] hover:text-[var(--fg-secondary)] px-1">收起</button>
                   </div>
                 </div>
                 <div>
-                  <CodeEditor value={meta.solutionCode} onChange={() => {}} readonly={true} light={light} height="h-[300px]" />
+                  <CodeEditor value={solution.solutionCode} onChange={() => {}} readonly={true} light={light} height="h-[300px]" />
                 </div>
-                {meta.solutionExplanation && (
+                {solution.solutionExplanation && (
                   <div className="px-3 py-2 border-t text-[12px] leading-relaxed text-[var(--fg-secondary)] whitespace-pre-line" style={{ borderColor: 'var(--border)' }}>
-                    {meta.solutionExplanation}
+                    {solution.solutionExplanation}
                   </div>
                 )}
               </div>
@@ -176,8 +199,8 @@ export function ChallengeClient({ id }: { id: string }) {
                 {checking ? '检查中…' : '检查'}
               </button>
               <button onClick={handleReset} className="btn-ghost px-3 py-2 text-[13px]">重置</button>
-              {!showSolution && meta.solutionCode && (
-                <button onClick={() => setShowSolution(true)} className="btn-ghost px-3 py-2 text-[13px]" style={{ color: 'var(--accent)' }}>答案</button>
+              {!showSolution && meta.hasSolution && (
+                <button onClick={handleShowSolution} disabled={loadingSolution} className="btn-ghost px-3 py-2 text-[13px]" style={{ color: 'var(--accent)' }}>{loadingSolution ? '加载中…' : '答案'}</button>
               )}
             </div>
 
@@ -205,8 +228,8 @@ export function ChallengeClient({ id }: { id: string }) {
                 {checking ? '检查中…' : '检查答案'}
               </button>
               <button onClick={handleReset} className="btn-ghost px-3 py-1.5 text-[13px]">重置</button>
-              {!showSolution && meta.solutionCode && (
-                <button onClick={() => setShowSolution(true)} className="btn-ghost px-3 py-1.5 text-[13px]" style={{ color: 'var(--accent)' }}>答案</button>
+              {!showSolution && meta.hasSolution && (
+                <button onClick={handleShowSolution} disabled={loadingSolution} className="btn-ghost px-3 py-1.5 text-[13px]" style={{ color: 'var(--accent)' }}>{loadingSolution ? '加载中…' : '答案'}</button>
               )}
             </div>
           </div>

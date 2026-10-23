@@ -1,0 +1,478 @@
+{
+  "2": {
+    "solutionCode": "type MyReturnType<T> = T extends (...args: any[]) => infer R ? R : never",
+    "solutionExplanation": "1. 约束 T 为函数类型\n2. 用 `infer R` 推断返回值类型\n3. 返回 R\n\n`infer` 只能在条件类型的 extends 子句中使用。"
+  },
+  "3": {
+    "solutionCode": "type MyOmit<T, K extends keyof T> = { [P in Exclude<keyof T, K>]: T[P] }",
+    "solutionExplanation": "1. `Exclude<keyof T, K>` 排除要删除的属性\n2. 对剩余属性做映射\n\n另一种写法（as 子句）：`{ [P in keyof T as P extends K ? never : P]: T[P] }`"
+  },
+  "4": {
+    "solutionCode": "type MyPick<T, K extends keyof T> = { [P in K]: T[P] }",
+    "solutionExplanation": "1. `K extends keyof T` 约束 K 必须是 T 的属性\n2. `[P in K]` 映射遍历 K 中的每个属性\n3. `T[P]` 取出原始类型中对应属性的类型"
+  },
+  "5": {
+    "solutionCode": "type GetReadonlyKeys<T> = { [K in keyof T]-?: Equal<{ -readonly [P in K]: T[K] }, { [P in K]: T[P] }> extends true ? never : K }[keyof T]",
+    "solutionExplanation": "1. 遍历 T 的所有属性\n2. 比较去掉 readonly 后的类型和原类型\n3. 如果不同则说明该属性是 readonly\n4. 用 `[keyof T]` 提取出联合类型"
+  },
+  "6": {
+    "solutionCode": "type SimpleVue<D, C, M> = { new(): { [K in keyof D | keyof C | keyof M]: K extends keyof D ? D[K] : K extends keyof M ? M[K] : K extends keyof C ? (C[K] & ThisType<D & M & { [P in keyof C]: C[P] extends (...args: any[]) => infer R ? R : never }>) : never } }",
+    "solutionExplanation": "1. 合并 data(D)、computed(C)、methods(M)\n2. data 属性直接映射\n3. computed 属性映射为函数返回值\n4. methods 映射为原始类型\n5. 用 ThisType 绑定 this"
+  },
+  "7": {
+    "solutionCode": "type MyReadonly<T> = { readonly [P in keyof T]: T[P] }",
+    "solutionExplanation": "1. `keyof T` 获取所有属性名\n2. `[P in keyof T]` 映射遍历\n3. 每个属性前加 `readonly` 修饰符"
+  },
+  "8": {
+    "solutionCode": "type MyReadonly2<T, K extends keyof T = keyof T> = { readonly [P in K]: T[P] } & { [P in Exclude<keyof T, K>]: T[P] }",
+    "solutionExplanation": "1. 分两部分用 `&` 合并\n2. K 中的属性 → 加 readonly\n3. 其余属性 → 保持原样\n4. K 默认值是 `keyof T`"
+  },
+  "9": {
+    "solutionCode": "type DeepReadonly<T> = { readonly [P in keyof T]: T[P] extends Function ? T[P] : T[P] extends object ? DeepReadonly<T[P]> : T[P] }",
+    "solutionExplanation": "1. 所有属性加 `readonly`\n2. 函数类型 → 保持原样\n3. 对象类型 → 递归 DeepReadonly\n4. 基本类型 → 保持原样"
+  },
+  "10": {
+    "solutionCode": "type TupleToUnion<T extends readonly any[]> = T[number]",
+    "solutionExplanation": "`T[number]` 索引访问——用 `number` 索引数组/元组类型，得到所有元素的联合类型。"
+  },
+  "11": {
+    "solutionCode": "type TupleToObject<T extends readonly (string | number | symbol)[]> = { [P in T[number]]: P }",
+    "solutionExplanation": "1. `T[number]` 获取所有元素的联合类型\n2. 遍历每个元素作为键和值"
+  },
+  "12": {
+    "solutionCode": "type Chainable<T = {}> = { option<K extends string, V>(key: K extends keyof T ? never : K, value: V): Chainable<Omit<T, K> & Record<K, V>>; get(): T }",
+    "solutionExplanation": "1. option 返回新的 Chainable\n2. `Omit<T, K>` 先移除同名 key（防止重复）\n3. `& Record<K, V>` 添加新 key\n4. get() 返回累积的 T"
+  },
+  "13": {
+    "solutionCode": "type HelloWorld = string",
+    "solutionExplanation": "直接将 `HelloWorld` 赋值为 `string` 类型。"
+  },
+  "14": {
+    "solutionCode": "type First<T extends any[]> = T extends [] ? never : T[0]",
+    "solutionExplanation": "1. 空数组检查 → 返回 never\n2. 否则取 `T[0]`\n\n也可以用 `T extends [infer F, ...any[]] ? F : never`"
+  },
+  "15": {
+    "solutionCode": "type Last<T extends any[]> = T extends [...any[], infer L] ? L : never",
+    "solutionExplanation": "用可变元组 `[...any[], infer L]` 匹配除最后一个之外的所有元素，infer 推断最后一个。"
+  },
+  "16": {
+    "solutionCode": "type Pop<T extends any[]> = T extends [...infer Rest, any] ? Rest : []",
+    "solutionExplanation": "`[...infer Rest, any]` 推断除最后一个外的所有元素，丢弃最后一个。"
+  },
+  "17": {
+    "solutionCode": "declare function Currying<F extends Function>(fn: F):\n  F extends (...args: infer P) => infer R\n    ? P extends [infer H, ...infer T]\n      ? (arg: H) => T extends [] ? R : ReturnType<typeof Currying<(...args: T) => R>>\n      : () => R\n    : never",
+    "solutionExplanation": "1. 用 infer 提取参数和返回值\n2. 逐个取出第一个参数作为新函数参数\n3. 剩余参数递归 Currying\n4. 参数为空时直接返回 R"
+  },
+  "18": {
+    "solutionCode": "type Length<T extends readonly any[]> = T['length']",
+    "solutionExplanation": "1. 约束 T 为只读数组\n2. `T['length']` 索引访问获取 length 属性\n3. TypeScript 元组的 length 是字面量类型"
+  },
+  "20": {
+    "solutionCode": "declare function PromiseAll<T extends any[]>(values: readonly [...T]): Promise<{ [K in keyof T]: T[K] extends Promise<infer R> ? R : T[K] }>",
+    "solutionExplanation": "1. 遍历元组 T 的每个元素\n2. 如果是 Promise 则用 infer 提取内部类型\n3. 否则保持原类型\n4. 返回 Promise 包装的元组"
+  },
+  "43": {
+    "solutionCode": "type MyExclude<T, U> = T extends U ? never : T",
+    "solutionExplanation": "1. `T extends U ? never : T` 条件类型\n2. 对联合类型 T，条件类型自动分配\n3. 每个成员分别判断，能赋给 U 的变为 never\n4. never 在联合类型中被剔除"
+  },
+  "55": {
+    "solutionCode": "type UnionToIntersection<U> = (U extends any ? (k: U) => void : never) extends (k: infer I) => void ? I : never",
+    "solutionExplanation": "1. 利用联合类型的分配律\n2. 每个成员生成 `(k: U) => void` 函数类型\n3. 函数参数位置是逆变的，形成交叉类型\n4. 用 infer 提取交叉后的参数类型"
+  },
+  "57": {
+    "solutionCode": "type GetRequired<T> = { [K in keyof T as T[K] extends Required<T>[K] ? K : never]: T[K] }",
+    "solutionExplanation": "1. 用 `Required<T>` 让所有属性变为必选\n2. 若 `T[K]` 与 `Required<T>[K]` 相同，说明 K 原本就是必选\n3. 用 `as` 键重映射过滤出必选键"
+  },
+  "59": {
+    "solutionCode": "type GetOptional<T> = { [K in keyof T as T[K] extends Required<T>[K] ? never : K]: T[K] }",
+    "solutionExplanation": "1. 用 `Required<T>` 让所有属性变为必选\n2. 若 `T[K]` 与 `Required<T>[K]` 不同，说明 K 原本是可选\n3. 用 `as` 键重映射过滤出可选键"
+  },
+  "62": {
+    "solutionCode": "type LookUp<U extends { type: any }, T> = U extends { type: T } ? U : never",
+    "solutionExplanation": "1. 条件类型 + 联合类型分配律\n2. 对 U 的每个成员，检查 type 是否匹配 T\n3. 匹配的保留，不匹配的变为 never"
+  },
+  "89": {
+    "solutionCode": "type RequiredKeys<T> = { [K in keyof T]-?: {} extends Pick<T, K> ? never : K }[keyof T]",
+    "solutionExplanation": "1. `{} extends Pick<T, K>` 为真当且仅当 K 是可选键\n2. 遍历 `keyof T`，用 `-?` 移除可选性以便索引\n3. 必选键保留 K，可选键置为 `never`，最后 `[keyof T]` 收集联合"
+  },
+  "90": {
+    "solutionCode": "type OptionalKeys<T> = { [K in keyof T]-?: {} extends Pick<T, K> ? K : never }[keyof T]",
+    "solutionExplanation": "1. `{} extends Pick<T, K>` 为真当且仅当 K 是可选键\n2. 遍历 `keyof T`，用 `-?` 移除可选性以便索引\n3. 可选键保留 K，必选键置为 `never`，最后 `[keyof T]` 收集联合"
+  },
+  "106": {
+    "solutionCode": "type TrimLeft<S extends string> = S extends `${' ' | '\\n' | '\\t'}${infer R}` ? TrimLeft<R> : S",
+    "solutionExplanation": "1. 模板字面量类型匹配开头空白字符\n2. 用 infer 提取剩余部分\n3. 递归去除直到开头不是空白字符"
+  },
+  "108": {
+    "solutionCode": "type Trim<S extends string> = S extends `${' ' | '\\n' | '\\t'}${infer R}` ? Trim<R> : S extends `${infer L}${' ' | '\\n' | '\\t'}` ? Trim<L> : S",
+    "solutionExplanation": "1. 先递归去除左侧空白\n2. 再递归去除右侧空白\n3. 直到两侧都不是空白字符"
+  },
+  "110": {
+    "solutionCode": "type MyCapitalize<S extends string> = S extends `${infer F}${infer R}` ? `${Uppercase<F>}${R}` : S",
+    "solutionExplanation": "1. 用模板字面量拆分首字符 F 和剩余 R\n2. 用内置 `Uppercase<F>` 将首字母大写\n3. 拼接回 `${Uppercase<F>}${R}`"
+  },
+  "116": {
+    "solutionCode": "type Replace<S extends string, From extends string, To extends string> = From extends '' ? S : S extends `${infer L}${From}${infer R}` ? `${L}${To}${R}` : S",
+    "solutionExplanation": "1. From 为空时直接返回 S\n2. 匹配 `${infer L}${From}${infer R}`\n3. 将 From 替换为 To\n4. 只替换第一个匹配项"
+  },
+  "119": {
+    "solutionCode": "type ReplaceAll<S extends string, From extends string, To extends string> = From extends '' ? S : S extends `${infer L}${From}${infer R}` ? `${L}${To}${ReplaceAll<R, From, To>}` : S",
+    "solutionExplanation": "1. 匹配第一个 From，替换为 To\n2. 对剩余部分 R 递归 ReplaceAll\n3. 直到没有匹配项"
+  },
+  "189": {
+    "solutionCode": "type MyAwaited<T extends Promise<any>> = T extends Promise<infer R> ? (R extends Promise<any> ? MyAwaited<R> : R) : never",
+    "solutionExplanation": "1. 用 infer 提取 Promise 内部类型\n2. 递归检查是否还是 Promise\n3. 直到不是 Promise 为止"
+  },
+  "191": {
+    "solutionCode": "type AppendArgument<F extends (...args: any[]) => any, A> = F extends (...args: infer P) => infer R ? (...args: [...P, A]) => R : never",
+    "solutionExplanation": "1. 提取原函数的参数 P 和返回值 R\n2. 用 `[...P, A]` 在参数末尾追加 A\n3. 保持原返回值类型"
+  },
+  "223": {
+    "solutionCode": "type IsAny<T> = 0 extends (1 & T) ? true : false",
+    "solutionExplanation": "1. `1 & T`：若 T 是 `any`，交叉结果为 `any`；否则按 T 收缩\n2. `0 extends any` 为真，`0 extends 具体类型` 为假\n3. 因此只有 `any` 会让 `0 extends (1 & T)` 成立"
+  },
+  "268": {
+    "solutionCode": "type If<C extends boolean, T, F> = C extends true ? T : F",
+    "solutionExplanation": "1. 约束 C 为 boolean\n2. 条件类型：C 为 true 返回 T，否则返回 F\n3. 注意这里 C 不是联合类型，不会触发分配律"
+  },
+  "270": {
+    "solutionCode": "type Get<T, K extends string> = K extends keyof T ? T[K] : K extends `${infer L}.${infer R}` ? L extends keyof T ? Get<T[L], R> : never : never",
+    "solutionExplanation": "1. 先判断 K 是否是 T 的直接键（含 `'foo.baz'` 这种字面键）\n2. 否则按 `${infer L}.${infer R}` 拆成首段和剩余路径\n3. 递归对 `T[L]` 处理剩余路径 R"
+  },
+  "296": {
+    "solutionCode": "type Permutation<T, U = T> = [T] extends [never] ? [] : T extends any ? [T, ...Permutation<Exclude<U, T>>] : never",
+    "solutionExplanation": "1. T 为 never 时返回空数组\n2. 利用分配律遍历 T 的每个成员\n3. 当前成员放首位，递归排列剩余的"
+  },
+  "298": {
+    "solutionCode": "type LengthOfString<S extends string, A extends any[] = []> = S extends `${infer F}${infer R}` ? LengthOfString<R, [...A, F]> : A['length']",
+    "solutionExplanation": "1. 递归拆分字符串\n2. 用辅助数组 A 累积计数\n3. 最终返回 `A[\"length\"]`\n4. 用元组长度模拟数字"
+  },
+  "300": {
+    "solutionCode": "type ToNumber<S extends string> = S extends `${infer N extends number}` ? N : never",
+    "solutionExplanation": "1. 用 `${infer N extends number}` 尝试把字符串解析为数字字面量\n2. 解析成功返回 N，否则返回 `never`\n3. `'18@7_$%'` 这类非法数字无法匹配，得到 `never`"
+  },
+  "399": {
+    "solutionCode": "type FilterOut<T extends any[], F> = T extends [infer R, ...infer Rest] ? ([R] extends [F] ? FilterOut<Rest, F> : [R, ...FilterOut<Rest, F>]) : []",
+    "solutionExplanation": "1. 用 `[R] extends [F]` 而非 `R extends F`，避免对联合类型分发\n2. 匹配到 F 的元素跳过，否则保留\n3. 递归处理剩余元素，直到元组为空"
+  },
+  "459": {
+    "solutionCode": "type Flatten<T extends any[]> = T extends [infer F, ...infer R] ? (F extends any[] ? [...Flatten<F>, ...Flatten<R>] : [F, ...Flatten<R>]) : []",
+    "solutionExplanation": "1. 逐个处理数组元素\n2. 如果元素是数组 → 递归 Flatten 并展开\n3. 如果元素不是数组 → 直接保留\n4. 空数组返回 []"
+  },
+  "527": {
+    "solutionCode": "type AppendToObject<T extends object, U extends string, V> = { [P in keyof T | U]: P extends keyof T ? T[P] : V }",
+    "solutionExplanation": "1. 遍历 `keyof T | U`\n2. 如果 P 是 T 的属性 → 取原始值\n3. 如果 P 是 U → 取新值 V\n4. 用 `|` 将新属性加入遍历"
+  },
+  "529": {
+    "solutionCode": "type Absolute<T extends number | string | bigint> = `${T}` extends `-${infer R}` ? R : `${T}`",
+    "solutionExplanation": "1. 将 T 转为字符串\n2. 匹配 `-` 前缀 → 去掉负号\n3. 否则直接返回\n4. 利用了模板字面量类型的类型推断"
+  },
+  "531": {
+    "solutionCode": "type StringToUnion<T extends string> = T extends `${infer F}${infer R}` ? F | StringToUnion<R> : never",
+    "solutionExplanation": "1. 递归拆分每个字符\n2. 用 `|` 将字符组合为联合类型\n3. 空字符串返回 never"
+  },
+  "533": {
+    "solutionCode": "type Concat<T extends any[], U extends any[]> = [...T, ...U]",
+    "solutionExplanation": "用可变元组展开语法 `[...T, ...U]` 合并两个元组。"
+  },
+  "599": {
+    "solutionCode": "type Merge<F, S> = { [P in keyof F | keyof S]: P extends keyof S ? S[P] : P extends keyof F ? F[P] : never }",
+    "solutionExplanation": "1. 遍历两个对象的所有属性\n2. 优先取 S 的值（覆盖 F）\n3. 否则取 F 的值"
+  },
+  "612": {
+    "solutionCode": "type KebabCase<S extends string> = S extends `${infer F}${infer R}` ? (R extends Uncapitalize<R> ? `${Lowercase<F>}${KebabCase<R>}` : `${Lowercase<F>}-${KebabCase<Uncapitalize<R>>}`) : S",
+    "solutionExplanation": "1. 逐个字符处理\n2. 遇到大写字母 → 前面加 `-`\n3. 全部转小写\n4. 用 Uncapitalize 判断是否大写"
+  },
+  "645": {
+    "solutionCode": "type Diff<O, O1> = { [P in Exclude<keyof O | keyof O1, keyof O & keyof O1>]: P extends keyof O ? O[P] : P extends keyof O1 ? O1[P] : never }",
+    "solutionExplanation": "1. 取两个对象属性的对称差集\n2. `Exclude<A|B, A&B>` 排除公共属性\n3. 映射结果属性到对应类型的值"
+  },
+  "847": {
+    "solutionCode": "declare function join<D extends string>(delimiter: D): <P extends string[]>(...parts: P) => Join<D, P>\ntype Join<D extends string, P extends string[]> = P extends [infer F extends string, ...infer R extends string[]] ? (R extends [] ? F : `${F}${D}${Join<D, R>}`) : ''",
+    "solutionExplanation": "1. `join(delimiter)` 返回一个接收任意字符串参数的函数\n2. `Join` 递归：单元素直接返回，多元素用 D 分隔拼接\n3. 空参数列表返回空字符串"
+  },
+  "898": {
+    "solutionCode": "type Includes<T extends readonly any[], U> = T extends [infer F, ...infer R] ? (Equal<F, U> extends true ? true : Includes<R, U>) : false",
+    "solutionExplanation": "1. 逐个检查元素\n2. 用 Equal 严格比较类型\n3. 找到匹配返回 true\n4. 遍历完返回 false"
+  },
+  "949": {
+    "solutionCode": "type AnyOf<T extends readonly any[]> = T[number] extends 0 | '' | false | [] | { [key: string]: never } | undefined | null ? false : true",
+    "solutionExplanation": "1. `T[number]` 获取元素联合类型\n2. 检查是否所有元素都是 falsy 类型\n3. 如果是 → false，否则 → true"
+  },
+  "1042": {
+    "solutionCode": "type IsNever<T> = [T] extends [never] ? true : false",
+    "solutionExplanation": "1. 关键：用 `[T]` 包装防止分配律\n2. never 在条件类型中会直接\"消失\"\n3. 用元组包装后，`[never] extends [never]` 才能正确判断"
+  },
+  "1097": {
+    "solutionCode": "type IsUnion<T, U = T> = [T] extends [never] ? false : T extends U ? ([U] extends [T] ? false : true) : never",
+    "solutionExplanation": "1. T 为 never → false\n2. 利用分配律：如果是联合类型，T 会被分配\n3. 分配后比较 `[U] extends [T]`\n4. 联合类型时每个分支的 U !== T → true"
+  },
+  "1130": {
+    "solutionCode": "type ReplaceKeys<U, T, Y> = { [P in keyof U]: P extends T ? (P extends keyof Y ? Y[P] : never) : U[P] }",
+    "solutionExplanation": "1. 遍历 U 的所有属性\n2. 如果属性在 T 中 → 替换为 Y 对应值\n3. 如果 Y 中没有对应值 → never\n4. 否则保持 U 的原值"
+  },
+  "1367": {
+    "solutionCode": "type RemoveIndexSignature<T> = { [P in keyof T as string extends P ? never : number extends P ? never : P]: T[P] }",
+    "solutionExplanation": "1. 用 `as` 子句过滤属性名\n2. `string extends P` 判断是否为字符串索引签名\n3. `number extends P` 判断是否为数字索引签名\n4. 非索引签名的属性保留"
+  },
+  "1978": {
+    "solutionCode": "type PercentageParser<A extends string> = A extends `${infer Sign extends '+' | '-'}${infer R}` ? [Sign, ...(R extends `${infer N}%` ? [N, '%'] : [R, ''])] : A extends `${infer N}%` ? ['', N, '%'] : ['', A, '']",
+    "solutionExplanation": "1. 匹配正负号 `+`/`-`\n2. 匹配数字部分\n3. 匹配百分号 `%`\n4. 返回 `[符号, 数字, 单位]`"
+  },
+  "2070": {
+    "solutionCode": "type DropChar<S extends string, C extends string> = S extends `${infer F}${infer R}` ? (F extends C ? DropChar<R, C> : `${F}${DropChar<R, C>}`) : S",
+    "solutionExplanation": "1. 逐个字符检查\n2. 匹配 C 则跳过（递归 DropChar）\n3. 不匹配则保留并继续递归"
+  },
+  "2257": {
+    "solutionCode": "type MinusOne<T extends number, A extends any[] = []> = T extends A['length'] ? A extends [any, ...infer Rest] ? Rest['length'] : never : MinusOne<T, [...A, any]>",
+    "solutionExplanation": "1. 用元组长度模拟数字\n2. 构建长度为 T 的元组\n3. 去掉第一个元素后取 length\n4. 得到 T-1"
+  },
+  "2595": {
+    "solutionCode": "type PickByType<T, U> = { [P in keyof T as T[P] extends U ? P : never]: T[P] }",
+    "solutionExplanation": "1. 遍历 T 的所有属性\n2. 用 `as` 子句过滤：值类型匹配 U 的保留\n3. 不匹配的变成 never 被过滤掉"
+  },
+  "2688": {
+    "solutionCode": "type StartsWith<T extends string, U extends string> = T extends `${U}${string}` ? true : false",
+    "solutionExplanation": "用模板字面量类型匹配：`${U}${string}` 表示以 U 开头任意字符串结尾。"
+  },
+  "2693": {
+    "solutionCode": "type EndsWith<T extends string, U extends string> = T extends `${string}${U}` ? true : false",
+    "solutionExplanation": "用模板字面量类型匹配：`${string}${U}` 表示任意字符串开头以 U 结尾。"
+  },
+  "2757": {
+    "solutionCode": "type PartialByKeys<T, K extends keyof T = keyof T> = { [P in keyof T as P extends K ? never : P]: T[P] } & { [P in K]?: T[P] } extends infer O ? { [P in keyof O]: O[P] } : never",
+    "solutionExplanation": "1. 分成两部分：必选属性 和 可选属性\n2. 用交叉类型合并\n3. 用 `extends infer O` 展开交叉类型为单一对象类型"
+  },
+  "2759": {
+    "solutionCode": "type RequiredByKeys<T, K extends keyof T = keyof T> = Omit<T, K> & Required<Pick<T, K>> extends infer O ? { [P in keyof O]: O[P] } : never",
+    "solutionExplanation": "1. `K extends keyof T = keyof T`：不传 K 时默认把全部属性变必填\n2. `Omit<T, K>` 保留未选中的属性（维持原可选性），`Required<Pick<T, K>>` 把选中的属性变必填\n3. 两部分交叉后，用 `infer O` 配合 `{ [P in keyof O]: O[P] }` 展平成单一对象类型\n\n最后一步展平很关键：`Equal` 会把 `A & B` 交叉类型和扁平对象判为不相等，不展平测试过不了。"
+  },
+  "2793": {
+    "solutionCode": "type Mutable<T extends object> = { -readonly [P in keyof T]: T[P] }",
+    "solutionExplanation": "1. `T extends object` 约束只接受对象类型（数组、元组也是对象），排除 string、number 等原始类型\n2. `-readonly` 是修饰符减法，移除属性的只读修饰符\n3. `[P in keyof T]` 映射遍历所有属性，值保持不变\n\n注意只去除顶层的 readonly，不做递归深拷贝。"
+  },
+  "2828": {
+    "solutionCode": "type ClassPublicKeys<T> = keyof T",
+    "solutionExplanation": "1. `keyof` 只会取到 public 成员\n2. protected 和 private 成员对 `keyof` 不可见\n3. 因此直接 `keyof T` 即得到所有公有键"
+  },
+  "2852": {
+    "solutionCode": "type OmitByType<T, U> = { [P in keyof T as T[P] extends U ? never : P]: T[P] }",
+    "solutionExplanation": "1. 用 `as` 子句在映射类型里重新映射键\n2. `T[P] extends U ? never : P`：属性值类型为 U 时，键映射为 never 从而被剔除\n3. 其余属性保留原类型\n\n`as` 重映射是 TS 4.1 引入的写法，比 `Exclude` + `Pick` 更直观。"
+  },
+  "2857": {
+    "solutionCode": "type IsRequiredKey<T, K extends keyof T> = [K] extends [keyof { [P in keyof T as T[P] extends Required<T>[P] ? P : never]: T[P] }] ? true : false",
+    "solutionExplanation": "1. 先用键重映射算出所有必选键的联合\n2. 用 `[K] extends [...]` 避免对联合 K 分发\n3. K 整体是必选键的子集才返回 true"
+  },
+  "2946": {
+    "solutionCode": "type ObjectEntries<T> = {\n  [K in keyof T]-?: [K, T[K]]\n}[keyof T]",
+    "solutionExplanation": "1. `-?` 去掉键的可选修饰符，避免 `[keyof T]` 索引时额外带出 `undefined`\n2. `T[K]` 原样保留值类型 —— 可选键自带的 `| undefined` 来自访问可选属性，无需手动剥离\n3. `[keyof T]` 把映射结果拍平成联合类型\n\n关键点：`{ key?: undefined }` 和 `{ key: string | undefined }` 的值都要原样保留，`-?` 只影响键的可选性、不影响值类型。"
+  },
+  "2949": {
+    "solutionCode": "type ObjectFromEntries<T extends [PropertyKey, unknown]> = { [K in T[0]]: T extends [K, infer V] ? V : never }",
+    "solutionExplanation": "1. 用 `T[0]` 提取所有键组成映射键\n2. 对每个键 K，在 T 中查找匹配的元组并 `infer` 出值 V\n3. 生成 `{ 键: 值 }` 的对象类型"
+  },
+  "3057": {
+    "solutionCode": "type Push<T extends any[], U> = [...T, U]",
+    "solutionExplanation": "用可变元组展开语法在末尾添加元素。"
+  },
+  "3060": {
+    "solutionCode": "type Unshift<T extends any[], U> = [U, ...T]",
+    "solutionExplanation": "用可变元组展开语法在开头添加元素。"
+  },
+  "3062": {
+    "solutionCode": "type Shift<T extends unknown[]> = T extends [infer _, ...infer R] ? R : []",
+    "solutionExplanation": "1. `T extends unknown[]` 约束 T 为数组/元组，排除 unknown 等非数组类型\n2. `[infer _, ...infer R]` 用 infer 分离首元素和剩余元组\n3. 返回剩余部分 R；空数组返回 []\n\n`_` 表示忽略首元素的类型。"
+  },
+  "3188": {
+    "solutionCode": "type TupleToNestedObject<T, U> = T extends [infer F, ...infer R] ? { [P in F & PropertyKey]: TupleToNestedObject<R, U> } : U",
+    "solutionExplanation": "1. 递归解构元组：`[infer F, ...infer R]` 取出首元素和剩余部分\n2. `F & PropertyKey` 把字符串字面量转为可用作键的类型\n3. 剩余元组递归套入下一层，元组为空时返回 `U`\n\n关键是 `F & PropertyKey`：`infer` 推断出的 `F` 是裸类型，与 `PropertyKey` 取交集后才能作为映射类型的键。"
+  },
+  "3192": {
+    "solutionCode": "type Reverse<T extends unknown[]> = T extends [infer F, ...infer R] ? [...Reverse<R>, F] : T",
+    "solutionExplanation": "1. `[infer F, ...infer R]` 拆出首元素和剩余部分\n2. 递归反转剩余部分，再把首元素拼到末尾：`[...Reverse<R>, F]`\n3. 空数组直接返回自身，作为递归终点\n\n约束 `T extends unknown[]` 让 `Reverse<'string'>` 这类非数组输入直接报类型错误。"
+  },
+  "3196": {
+    "solutionCode": "type Reverse<T extends unknown[]> = T extends [infer F, ...infer R] ? [...Reverse<R>, F] : T\ntype FlipArguments<T extends (...args: any[]) => any> = T extends (...args: infer A) => infer R ? (...args: Reverse<A>) => R : never",
+    "solutionExplanation": "1. `Reverse` 递归反转元组：`[infer F, ...infer R]` 拆头，`[...Reverse<R>, F]` 接尾\n2. `T extends (...args: infer A) => infer R` 同时推断参数元组与返回值\n3. 约束 `T extends (...args: any[]) => any`，让 `FlipArguments<'string'>` 等非法输入报错（对应 @ts-expect-error 用例）\n\n参数名不影响函数类型的结构，反转参数顺序即可。"
+  },
+  "3312": {
+    "solutionCode": "type MyParameters<T extends (...args: any[]) => any> = T extends (...args: infer P) => any ? P : never",
+    "solutionExplanation": "用 infer 推断函数参数元组类型。"
+  },
+  "3326": {
+    "solutionCode": "type BEM<B extends string, E extends string[], M extends string[]> = `${B}${E extends [] ? '' : `__${E[number]}`}${M extends [] ? '' : `--${M[number]}`}`",
+    "solutionExplanation": "1. 模板字面量拼接「块名 + 元素 + 修饰符」\n2. 用条件类型判断 `E`/`M` 是否为空数组，空则不拼 `__`/`--` 前缀\n3. `E[number]` 把元组转成联合类型，放进模板字面量后自动分发\n\n`E[number]` 是联合类型，模板字面量会逐个分配，从而产生 `'btn__price--warning' | 'btn__price--success'` 这样的联合字符串。"
+  },
+  "3376": {
+    "solutionCode": "interface TreeNode {\n  val: number\n  left: TreeNode | null\n  right: TreeNode | null\n}\ntype InorderTraversal<T extends TreeNode | null> = T extends TreeNode ? [...InorderTraversal<T['left']>, T['val'], ...InorderTraversal<T['right']>] : []",
+    "solutionExplanation": "1. 约束 T 为 TreeNode | null，空节点返回空数组 []\n2. 对非空节点按「左子树 → 根 → 右子树」顺序递归\n3. 用元组展开 [...左, 根值, ...右] 拼接出中序遍历序列"
+  },
+  "4037": {
+    "solutionCode": "type IsPalindrome<T extends string | number> = `${T}` extends Reverse<`${T}`> ? true : false\ntype Reverse<S extends string> = S extends `${infer F}${infer R}` ? `${Reverse<R>}${F}` : ''",
+    "solutionExplanation": "1. 用模板字面量把 T 统一转为字符串\n2. `Reverse` 递归反转字符串\n3. 正反相等即回文"
+  },
+  "4179": {
+    "solutionCode": "type Flip<T extends Record<PropertyKey, any>> = { [K in keyof T as `${T[K]}`]: K }",
+    "solutionExplanation": "1. 用映射类型的 `as` 子句把值转成键，模板字面量 `${T[K]}` 会把 number/boolean 等值自动转成字符串键\n2. 键值互换后返回 `{ [原值]: 原键 }`\n3. 约束 `T extends Record<PropertyKey, any>` 保证值可作为键"
+  },
+  "4182": {
+    "solutionCode": "type Fibonacci<T extends number, N extends unknown[] = [], F extends unknown[] = [], S extends unknown[] = [unknown]> = N['length'] extends T ? F['length'] : Fibonacci<T, [...N, unknown], S, [...F, ...S]>",
+    "solutionExplanation": "1. 三个元组参数模拟递推：`N` 计数、`F` 前一项、`S` 当前项\n2. `N['length'] extends T` 数到目标时返回 `F` 的长度\n3. 每次递归 `F` 变为 `S`，`S` 变为 `[...F, ...S]`\n\n用元组长度代替数字做加法：`[...F, ...S]` 即两项相加，`['length']` 取回数字结果。"
+  },
+  "4425": {
+    "solutionCode": "type IsLonger<A extends string, B extends string> = A extends `${string}${infer RA}` ? (B extends `${string}${infer RB}` ? IsLonger<RA, RB> : true) : false\ntype DigitGreater<A extends string, B extends string> = '0123456789' extends `${string}${B}${infer Rest}` ? (Rest extends `${string}${A}${string}` ? true : false) : false\ntype CompareDigits<A extends string, B extends string> = A extends `${infer FA}${infer RA}` ? (B extends `${infer FB}${infer RB}` ? (FA extends FB ? CompareDigits<RA, RB> : DigitGreater<FA, FB>) : false) : false\ntype GreaterThan<T extends number, U extends number> = `${T}` extends `${U}` ? false : IsLonger<`${T}`, `${U}`> extends true ? true : IsLonger<`${U}`, `${T}`> extends true ? false : CompareDigits<`${T}`, `${U}`>",
+    "solutionExplanation": "1. 先判相等，再按字符串长度比较：位数多的更大\n2. 位数相同时逐位比较，用 `'0123456789'` 判断单数字大小\n3. 纯字符串方案，绕开元组递归深度上限\n\n直接 `T extends R['length']` 数元组会在 `1234567891011` 这种大数上撞递归深度，改用字符串逐位比较是唯一稳妥做法。"
+  },
+  "4471": {
+    "solutionCode": "type Zip<T, U> = T extends [infer F, ...infer R] ? U extends [infer S, ...infer Q] ? [[F, S], ...Zip<R, Q>] : [] : []",
+    "solutionExplanation": "1. 同时解构两个元组：`[infer F, ...infer R]` 取 T 的头 F，`[infer S, ...infer Q]` 取 U 的头 S\n2. 只要两边都还有元素，就配对成 `[F, S]` 并递归剩余部分\n3. 任一边为空时返回 `[]`（以较短者为准）"
+  },
+  "4484": {
+    "solutionCode": "type IsTuple<T> = [T] extends [never] ? false : T extends readonly unknown[] ? number extends T['length'] ? false : true : false",
+    "solutionExplanation": "1. `[T] extends [never]` 单独处理 never（never 会被条件类型分发导致误判）\n2. `T extends readonly unknown[]` 判断是否数组/元组（含 readonly）\n3. `number extends T['length']`：数组的 length 是 number，元组的 length 是字面量数字，据此区分数组和元组"
+  },
+  "4499": {
+    "solutionCode": "type Chunk<T extends unknown[], N extends number, R extends unknown[] = []> =\n  R['length'] extends N\n    ? [R, ...Chunk<T, N>]\n    : T extends [infer F, ...infer L]\n      ? Chunk<L, N, [...R, F]>\n      : R extends [] ? [] : [R]",
+    "solutionExplanation": "1. 累加器 `R` 收集当前块\n2. `R['length'] extends N` 时收满一块，`[R, ...Chunk<T, N>]` 压入结果并重置\n3. 元组耗尽时若 `R` 非空则补上最后一块 `[R]`\n\n`R['length']` 是块大小计数器；`Chunk<[1,2,3,4], 5>` 因永不收满而在末尾整体返回 `[R]`。"
+  },
+  "4518": {
+    "solutionCode": "type Fill<\n  T extends unknown[],\n  N,\n  Start extends number = 0,\n  End extends number = T['length'],\n  Count extends unknown[] = [],\n  Flag extends boolean = Count['length'] extends Start ? true : false\n> = Count['length'] extends End\n  ? T\n  : T extends [infer Head, ...infer Tail]\n    ? Flag extends false\n      ? [Head, ...Fill<Tail, N, Start, End, [...Count, 0]>]\n      : [N, ...Fill<Tail, N, Start, End, [...Count, 0], Flag>]\n    : T",
+    "solutionExplanation": "1. `Count` 用元组长度记录当前索引，`Flag` 标记是否已进入填充区间\n2. `Count['length'] extends End` 到达终点时返回原数组\n3. `Flag extends false` 保留原元素，否则替换为 `N`\n\n用 `Count['length']` 与 Start/End 比较定位区间；`Start > End` 或 `Start > 长度` 时天然不触发填充。"
+  },
+  "4803": {
+    "solutionCode": "type TrimRight<S extends string> = S extends `${infer R}${' ' | '\\n' | '\\t'}` ? TrimRight<R> : S",
+    "solutionExplanation": "1. 模板字面量 `${infer R}${空白字符}` 匹配以空白结尾的字符串，剥离最后一个空白\n2. 递归处理，直到末尾不再是空白\n3. 空字符串不匹配模式，直接返回自身"
+  },
+  "5117": {
+    "solutionCode": "type Without<T, U> = T extends [infer F, ...infer R] ? F extends (U extends unknown[] ? U[number] : U) ? Without<R, U> : [F, ...Without<R, U>] : []",
+    "solutionExplanation": "1. 递归解构元组头 `F` 和剩余 `R`\n2. U 可能是单个元素也可能是数组，用 `U extends unknown[] ? U[number] : U` 归一化成联合类型\n3. `F` 属于该联合类型则丢弃，否则保留并继续递归剩余部分"
+  },
+  "5140": {
+    "solutionCode": "type Trunc<T extends number | string> = `${T}` extends `${infer I}.${string}` ? I extends '' | '-' | '+' ? `${I}0` : I : `${T}`",
+    "solutionExplanation": "1. 用模板字面量 `${T}` 把数字转字符串，再按 `.` 拆出整数部分 `I`\n2. 边界：`.3`/`-.3` 这类小数点前无数字，`I` 为空或只有符号\n3. `I` 为空或仅为 `+`/`-` 时补 `0`，否则直接返回 `I`"
+  },
+  "5153": {
+    "solutionCode": "type IndexOf<T extends unknown[], U, Acc extends unknown[] = []> = T extends [infer F, ...infer R] ? Equal<F, U> extends true ? Acc['length'] : IndexOf<R, U, [...Acc, F]> : -1",
+    "solutionExplanation": "1. 用 `Acc` 元组累计已遍历元素，`Acc['length']` 就是当前索引\n2. 用 `Equal<F, U>` 精确比较（能区分 `any`/`number`/字面量类型，普通 `extends` 做不到）\n3. 匹配则返回索引，遍历完都没匹配返回 `-1`"
+  },
+  "5181": {
+    "solutionCode": "type MutableKeys<T> = { [K in keyof T]-?: Equal<{ [P in K]: T[P] }, { -readonly [P in K]: T[P] }> extends true ? K : never }[keyof T]",
+    "solutionExplanation": "1. `{ [P in K]: T[P] }` 保留 readonly，`{ -readonly ... }` 移除 readonly\n2. 两者相等说明 K 原本不是 readonly，即可变键\n3. 用 `Equal` 判断相等，`[keyof T]` 收集联合"
+  },
+  "5310": {
+    "solutionCode": "type Join<T extends unknown[], U extends string | number = ','> = T extends [infer F, ...infer R] ? R['length'] extends 0 ? `${F & string}` : `${F & string}${U}${Join<R, U>}` : ''",
+    "solutionExplanation": "1. `[infer F, ...infer R]` 拆出首元素\n2. `R['length'] extends 0` 判断是否最后一个元素，是则不加分隔符\n3. `F & string` 保证模板字面量能正确拼接；U 默认分隔符为 ','\n\n空数组直接返回空字符串。"
+  },
+  "5317": {
+    "solutionCode": "type LastIndexOf<T extends unknown[], U> = T extends [...infer R, infer L] ? Equal<L, U> extends true ? R['length'] : LastIndexOf<R, U> : -1",
+    "solutionExplanation": "1. 用 `[...infer R, infer L]` 从尾部解构，`R['length']` 即当前元素下标\n2. 从右往左第一个匹配就是「最后一次出现」，直接返回\n3. 用 `Equal<L, U>` 精确比较，避免 `any` 误匹配"
+  },
+  "5360": {
+    "solutionCode": "type Includes<T extends unknown[], U> = T extends [infer F, ...infer R] ? (Equal<F, U> extends true ? true : Includes<R, U>) : false\ntype Unique<T extends unknown[], R extends unknown[] = []> = T extends [infer F, ...infer Rest] ? (Includes<R, F> extends true ? Unique<Rest, R> : Unique<Rest, [...R, F]>) : R",
+    "solutionExplanation": "1. 辅助 Includes<R, F> 判断元素 F 是否已存在于结果 R\n2. 遍历输入元组，头部元素已存在则跳过，否则追加到结果\n3. 必须用 Equal 而非 extends：Equal 能区分 unknown/any/never 这类互相可赋值的类型"
+  },
+  "5821": {
+    "solutionCode": "type MapTypes<T, R extends { mapFrom: unknown; mapTo: unknown }> = { [K in keyof T]: T[K] extends R['mapFrom'] ? R extends { mapFrom: T[K] } ? R['mapTo'] : never : T[K] }",
+    "solutionExplanation": "1. `T[K] extends R['mapFrom']` 判断该属性值类型是否在映射表中\n2. `R extends { mapFrom: T[K] }` 让联合类型 R 分布式展开，精确匹配到对应的那条映射\n3. 命中则取该条的 `mapTo`，未命中保留原类型\n\n第 2 步的分布式条件是关键：直接写 `R['mapTo']` 会把联合类型里所有 mapTo 混在一起。"
+  },
+  "7544": {
+    "solutionCode": "type ConstructTuple<L extends number, Acc extends unknown[] = []> = Acc['length'] extends L ? Acc : ConstructTuple<L, [...Acc, unknown]>",
+    "solutionExplanation": "1. 用 `Acc` 元组递归累加，`[...Acc, unknown]` 每次多一个元素\n2. `Acc['length'] extends L` 到达目标长度即返回\n3. 依赖 TS 递归深度上限（1000），所以 `1000` 会触发编译错误（对应 @ts-expect-error 用例）"
+  },
+  "8640": {
+    "solutionCode": "type NumberRange<\n  L extends number,\n  H extends number,\n  C extends unknown[] = [],\n  Acc extends number = never,\n  Started extends boolean = false\n> = C['length'] extends H\n  ? Acc | H\n  : Started extends true\n    ? NumberRange<L, H, [...C, unknown], Acc | C['length'], true>\n    : C['length'] extends L\n      ? NumberRange<L, H, [...C, unknown], Acc | C['length'], true>\n      : NumberRange<L, H, [...C, unknown], Acc, false>",
+    "solutionExplanation": "1. `C` 用元组长度当计数器从 0 递增，`Acc` 累计已进入区间的数字\n2. `Started` 标记是否已到达下界 L，到达后每个 `C['length']` 都并入 `Acc`\n3. 计数器到 H 时返回 `Acc | H`\n\n`Acc` 是数字字面量的联合，`never` 作初始值不影响联合结果。"
+  },
+  "9142": {
+    "solutionCode": "type CheckRepeatedChars<T extends string> = T extends `${infer F}${infer R}` ? (R extends `${string}${F}${string}` ? true : CheckRepeatedChars<R>) : false",
+    "solutionExplanation": "1. 逐个取出首字符 F，判断它是否在剩余子串 R 中再次出现\n2. `${string}${F}${string}` 模板字面量匹配「F 出现在任意位置」\n3. 命中即返回 true，否则对剩余子串递归；空串返回 false"
+  },
+  "9286": {
+    "solutionCode": "type FirstUniqueCharIndex<T extends string, A extends string[] = []> = T extends `${infer F}${infer R}` ? (F extends A[number] ? FirstUniqueCharIndex<R, [...A, F]> : (R extends `${string}${F}${string}` ? FirstUniqueCharIndex<R, [...A, F]> : A['length'])) : -1",
+    "solutionExplanation": "1. 维护已扫描字符列表 A 作前缀，逐个取出首字符 F\n2. 若 F 已在前缀 A 中出现、或仍在剩余子串 R 中出现，则不是唯一字符，继续向后\n3. 首次遇到「前后都不再出现」的字符时，A['length'] 就是其下标；遍历完仍未找到返回 -1"
+  },
+  "9896": {
+    "solutionCode": "type GetMiddleElement<T extends unknown[]> = T extends [infer F, ...infer M, infer L] ? M extends [] ? [F, L] : GetMiddleElement<M> : T",
+    "solutionExplanation": "1. 用 `[infer F, ...infer M, infer L]` 同时剥掉首尾两个元素\n2. 剩余 0 个（只剩两个）或 1 个元素时即到达中间\n3. 偶数个返回两个中间元素，奇数个返回一个"
+  },
+  "9898": {
+    "solutionCode": "type CountOcc<Arr extends any[], U, C extends unknown[] = []> = Arr extends [infer F, ...infer R] ? (Equal<F, U> extends true ? CountOcc<R, U, [...C, unknown]> : CountOcc<R, U, C>) : C['length']\ntype FindEles<T extends any[], Orig extends any[] = T, R extends any[] = []> = T extends [infer F, ...infer Rest] ? (CountOcc<Orig, F> extends 1 ? FindEles<Rest, Orig, [...R, F]> : FindEles<Rest, Orig, R>) : R",
+    "solutionExplanation": "1. 辅助 CountOcc<Orig, F> 统计元素 F 在原始数组中出现的次数（Equal 精确匹配）\n2. 遍历数组，出现次数恰好为 1 的元素保留，其余丢弃\n3. 保留原始数组引用 Orig 做全量计数，避免边遍历边计数导致漏判"
+  },
+  "9989": {
+    "solutionCode": "type Flatten<T extends any[], Acc extends any[] = []> = T extends [infer F, ...infer R] ? (F extends any[] ? Flatten<R, [...Acc, ...Flatten<F>]> : Flatten<R, [...Acc, F]>) : Acc\ntype CountEl<Arr extends any[], U, C extends unknown[] = []> = Arr extends [infer F, ...infer R] ? (Equal<F, U> extends true ? CountEl<R, U, [...C, unknown]> : CountEl<R, U, C>) : C['length']\ntype CountElementNumberToObject<T extends any[], F extends any[] = Flatten<T>> = { [K in F[number]]: CountEl<F, K> }",
+    "solutionExplanation": "1. 先用 Flatten 拍平嵌套数组，得到全部叶子元素\n2. 用映射类型 { [K in F[number]]: ... } 以元素为键建对象，CountEl 统计每个键的出现次数\n3. 字符串键 '1' 会被 TS 规范化为数字键 1（匹配测试预期）；never 元素拍平后消失，映射类型自然得到 {}"
+  },
+  "10969": {
+    "solutionCode": "type Integer<T extends number> = number extends T ? never : `${T}` extends `${number}.${number}` ? never : T",
+    "solutionExplanation": "1. `number extends T` 排除宽泛的 number 类型\n2. `${T}` 转字符串后判断是否含小数点：`${number}.${number}` 匹配小数\n3. 整数直接返回 T\n\nTS 会把 `1.0`、`28.00` 这类整数形式规范化为 `1`、`28`，所以能被正确识别。"
+  },
+  "16259": {
+    "solutionCode": "type ToPrimitive<T> = T extends (...args: any[]) => any ? Function : T extends string ? string : T extends number ? number : T extends boolean ? boolean : T extends object ? { [K in keyof T]: ToPrimitive<T[K]> } : T",
+    "solutionExplanation": "1. 优先判断函数类型 → 返回 Function（否则会落入对象分支被错误映射）\n2. 字符串/数字/布尔字面量分别归一化为 string/number/boolean\n3. 对象递归映射每个属性；元组/数组经同态映射保持结构，只把叶子值转成原始类型"
+  },
+  "17973": {
+    "solutionCode": "type DeepMutable<T extends object> = { -readonly [K in keyof T]: T[K] extends (...args: any[]) => any ? T[K] : T[K] extends object ? DeepMutable<T[K]> : T[K] }",
+    "solutionExplanation": "1. -readonly 递归去除每一层对象的只读修饰符\n2. 函数类型直接原样返回，避免被映射成普通对象\n3. 对象/数组递归处理，叶子值原样保留；T extends object 约束让字符串/数字传参报错"
+  },
+  "18142": {
+    "solutionCode": "type All<T extends unknown[], U> = T extends [infer F, ...infer R]\n  ? Equal<F, U> extends true\n    ? All<R, U>\n    : false\n  : true",
+    "solutionExplanation": "1. 递归拆头，用 `Equal<F, U>` 做严格相等判断，能区分 `any`/`unknown`/`never` 与联合类型\n2. 任一个不相等即返回 `false`，全部相等返回 `true`\n\n`F extends U` 不够严格：`All<[any], unknown>` 会被误判为 `true`，必须用 `Equal`。"
+  },
+  "18220": {
+    "solutionCode": "type Filter<T extends any[], P> = T extends [infer F, ...infer R] ? (F extends P ? [F, ...Filter<R, P>] : Filter<R, P>) : []",
+    "solutionExplanation": "1. 递归解构元组，`F extends P` 判断是否保留\n2. 命中则 `[F, ...Filter<R, P>]`，否则跳过当前元素\n3. 空元组返回 `[]`\n\n`F extends P` 是分布式条件，`P` 为联合类型（如 `0 | 1`）时每个成员都能匹配。"
+  },
+  "19749": {
+    "solutionCode": "type IsEqual<X, Y> = (<T>() => T extends X ? 1 : 2) extends (<T>() => T extends Y ? 1 : 2) ? true : false",
+    "solutionExplanation": "1. 用函数类型的条件类型技巧：`(<T>() => T extends X ? 1 : 2) extends (<T>() => T extends Y ? 1 : 2)`\n2. 利用函数参数的逆变性质，能区分 `any`/`never`/联合类型与字面量的差异\n3. 比普通的 `X extends Y` 双向判断更严格"
+  },
+  "21104": {
+    "solutionCode": "type FindAll<T extends string, P extends string, Acc extends unknown[] = [], R extends number[] = []> = P extends '' ? [] : T extends `${string}${infer Rest}` ? (T extends `${P}${string}` ? FindAll<Rest, P, [...Acc, unknown], [...R, Acc['length']]> : FindAll<Rest, P, [...Acc, unknown], R>) : R",
+    "solutionExplanation": "1. 用 Acc 元组长度记录当前扫描位置的下标\n2. 每步判断当前 T 是否以 P 开头，命中就把 Acc['length'] 记入结果 R\n3. 每次只剥离一个字符，支持重叠匹配（如 'AAAA' 中 'AA' 命中 0/1/2）；P 为空返回 []"
+  },
+  "25170": {
+    "solutionCode": "type ReplaceFirst<T extends readonly unknown[], S, R> = T extends [infer F, ...infer Rest]\n  ? F extends S ? [R, ...Rest] : [F, ...ReplaceFirst<Rest, S, R>]\n  : []",
+    "solutionExplanation": "1. 递归拆头，找到第一个 `F extends S` 的元素\n2. 命中后用 `R` 替换并接回剩余元组；未命中保留 `F` 继续递归\n3. 遍历完仍无匹配返回 `[]`（即原数组不变）\n\n用 `F extends S`（可赋值）而非 `Equal`：`ReplaceFirst<[1, 'two', 3], string, 2>` 要求 `'two'` 能被 `string` 匹配。"
+  },
+  "25270": {
+    "solutionCode": "type Transpose<M extends number[][]> = M extends [] ? [] : M[0] extends [] ? [] : [{ [K in keyof M]: M[K] extends [infer F, ...unknown[]] ? F : never }, ...Transpose<{ [K in keyof M]: M[K] extends [unknown, ...infer R] ? R : [] }>]",
+    "solutionExplanation": "1. 取所有行的首元素组成新的一行（即矩阵的第一列）\n2. 每行去掉首元素后的剩余部分递归转置\n3. `M[0] extends []` 作为终止条件：首行为空说明转置完成\n\n`{ [K in keyof M]: M[K] extends [infer F, ...] ? F : never }` 用映射类型按列抽取首元素，保持元组结构。"
+  },
+  "27862": {
+    "solutionCode": "type CartesianProduct<T, U> = T extends T ? U extends U ? [T, U] : never : never",
+    "solutionExplanation": "1. `T extends T` 与 `U extends U` 让条件类型对联合类型逐成员分发\n2. 双层分发产生 [T, U] 的所有笛卡尔积组合\n3. never 作为空集在分发过程中被自动吸收"
+  },
+  "27932": {
+    "solutionCode": "type MergeTwo<A, B> = { [K in keyof A | keyof B]: (K extends keyof A ? A[K] : never) | (K extends keyof B ? B[K] : never) }\ntype MergeAll<XS> = XS extends [infer F, ...infer R] ? MergeTwo<F, MergeAll<R>> : {}",
+    "solutionExplanation": "1. 递归解构对象元组，两两合并\n2. `MergeTwo` 对同名键取联合 `A[K] | B[K]`，不同键各自保留\n3. 空元组返回 `{}`\n\n注意这是「联合合并」而非「交叉合并」：`{a:1}` 与 `{a:number}` 合并得 `{a: number}`（`1 | number`），交叉类型会得到 `1 & number = 1`。"
+  },
+  "27958": {
+    "solutionCode": "type Includes<T extends unknown[], U> = T extends [infer F, ...infer R] ? (Equal<F, U> extends true ? true : Includes<R, U>) : false\ntype CheckRepeatedTuple<T extends unknown[]> = T extends [infer F, ...infer R] ? (Includes<R, F> extends true ? true : CheckRepeatedTuple<R>) : false",
+    "solutionExplanation": "1. `Includes` 辅助类型判断某元素是否在剩余元组中出现\n2. 逐元素检查 `Includes<R, F>`，命中即返回 `true`\n3. 用 `Equal` 而非 `F extends U` 做严格相等判断\n\n关键：`Equal` 能区分 `any`/`never` 与具体类型。`[never, any, never]` 里两个 `never` 必须用 `Equal` 才能识别为重复；用 `extends` 会被 `any` 吞掉 `never` 导致误判。"
+  },
+  "28333": {
+    "solutionCode": "type PublicType<T extends object> = { [K in keyof T as K extends `_${string}` ? never : K]: T[K] }",
+    "solutionExplanation": "1. 用键重映射 `as K extends \\`_${string}\\` ? never : K` 过滤掉下划线开头的私有/受保护键\n2. 同态映射保留 readonly 与可选修饰符\n3. 只判断键名是否以下划线开头，与值的类型无关"
+  },
+  "30301": {
+    "solutionCode": "type IsOdd<T extends number> = `${T}` extends `${number}.${number}`\n  ? false\n  : `${T}` extends `${number}e${number}`\n    ? false\n    : `${T}` extends `${string}${1 | 3 | 5 | 7 | 9}`\n      ? true\n      : false",
+    "solutionExplanation": "1. 含 `.` 的小数与含 `e` 的科学计数法都不是奇数，先排除\n2. 其余用模板字面量匹配最后一位是否为 `1|3|5|7|9`\n3. `3e0` 会被 TS 规范化为 `3`（无 `e`），故能正确判为奇数\n\n`number` 类型因包含偶数结尾，条件不成立而返回 `false`。"
+  },
+  "34007": {
+    "solutionCode": "type CompareArrayLength<T extends any[], U extends any[]> = T extends [any, ...infer RT] ? (U extends [any, ...infer RU] ? CompareArrayLength<RT, RU> : 1) : (U extends [any, ...infer _] ? -1 : 0)",
+    "solutionExplanation": "1. 双元组同步解构，逐元素消耗\n2. 一方先耗尽：`T` 还有剩余返回 `1`，`U` 还有剩余返回 `-1`\n3. 同时耗尽返回 `0`\n\n用递归解构逐元素比较，比直接比较 `length` 字段更直观，也避免了对元组长度的依赖。"
+  },
+  "35045": {
+    "solutionCode": "type AllStart<T extends string[], P extends string> = T extends [infer F extends string, ...infer R extends string[]] ? (F extends `${P}${string}` ? AllStart<R, P> : false) : true\ntype LongestCommonPrefix<T extends string[], P extends string = ''> = T extends [infer F extends string, ...infer R extends string[]] ? (F extends `${P}${infer C}${infer _}` ? (C extends '' ? P : (AllStart<T, `${P}${C}`> extends true ? LongestCommonPrefix<T, `${P}${C}`> : P)) : P) : P",
+    "solutionExplanation": "1. 辅助 AllStart<T, P> 判断所有字符串是否都以 P 为前缀\n2. 从第一个字符串逐字符扩展前缀 P，每扩展一次让全部字符串一起校验\n3. 首个字符取不到（F == P）时说明已到最短串末尾，返回当前 P；`infer R extends string[]` 显式约束 rest 类型，避免 TS 推断成 unknown[]"
+  },
+  "35252": {
+    "solutionCode": "type IsAlphabet<S extends string> = S extends `${infer F}${infer R}` ? (Uppercase<F> extends Lowercase<F> ? false : (R extends '' ? true : IsAlphabet<R>)) : false",
+    "solutionExplanation": "1. 逐个取出字符，用 Uppercase<F> extends Lowercase<F> 判断是否为字母\n2. 字母的大小写形式不同（'A' vs 'a'），数字/符号/emoji 大小写相同 → 返回 false\n3. 空串不匹配 ${infer F}${infer R}，直接返回 false"
+  },
+  "35991": {
+    "solutionCode": "type UpperMap = { a: 'A', b: 'B', c: 'C', d: 'D', e: 'E', f: 'F', g: 'G', h: 'H', i: 'I', j: 'J', k: 'K', l: 'L', m: 'M', n: 'N', o: 'O', p: 'P', q: 'Q', r: 'R', s: 'S', t: 'T', u: 'U', v: 'V', w: 'W', x: 'X', y: 'Y', z: 'Z' }\ntype MyUppercase<S extends string> = S extends `${infer F}${infer R}` ? `${F extends keyof UpperMap ? UpperMap[F] : F}${MyUppercase<R>}` : S",
+    "solutionExplanation": "1. 用 UpperMap 字典把 a-z 映射到 A-Z，不用内置 Uppercase\n2. 逐个字符处理：命中字典键则替换，否则（数字/空格/换行/emoji）原样保留\n3. 递归拼接结果，空串直接返回"
+  }
+}
