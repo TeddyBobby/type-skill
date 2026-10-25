@@ -1,38 +1,14 @@
 /* Hallmark · pre-emit critique: P4 H4 E4 S4 R4 V4 */
 
-'use client'
-
-import { useState, useEffect } from 'react'
 import { Header } from '@/components/header'
+import { getAllChallenges } from '@/lib/challenges'
 import Link from 'next/link'
 
 export default function Home() {
-  const [stats, setStats] = useState({ total: 0, completed: 0 })
-  const [typedText, setTypedText] = useState('')
-
-  useEffect(() => {
-    import('@/lib/challenges').then(({ getAllChallenges }) => {
-      const total = getAllChallenges().length
-      import('@/lib/storage').then(({ getCompletedChallenges }) => {
-        setStats({ total, completed: getCompletedChallenges().size })
-      })
-    })
-  }, [])
-
-  // Hero typing effect
-  useEffect(() => {
-    const code = "type MyPick<T, K extends keyof T> = {\n  [P in K]: T[P]\n}"
-    let i = 0
-    const timer = setInterval(() => {
-      if (i <= code.length) {
-        setTypedText(code.slice(0, i))
-        i++
-      } else {
-        clearInterval(timer)
-      }
-    }, 30)
-    return () => clearInterval(timer)
-  }, [])
+  // 服务端组件：构建时读取题目总数，HTML 直出。
+  // 原实现是客户端组件，靠 useEffect 动态 import 题库才能在首屏算出总数，
+  // 且 typing effect 的 typedText 与 completed 计数从未渲染 —— 属死代码。
+  const total = getAllChallenges().length
 
   return (
     <>
@@ -50,7 +26,7 @@ export default function Home() {
             <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-medium mb-8"
               style={{ background: 'rgba(94,106,210,0.08)', color: 'var(--accent)', border: '1px solid rgba(94,106,210,0.15)' }}>
               <span className="w-1.5 h-1.5 rounded-full" style={{ background: 'var(--success)', boxShadow: '0 0 6px rgba(39,166,68,0.3)' }} />
-              {stats.total} 道题 · 从 0 到精通
+              {total} 道题 · 从 0 到精通
             </div>
 
             {/* Title — solid ink, no gradient */}
@@ -62,7 +38,7 @@ export default function Home() {
             </h1>
 
             <p className="text-[var(--fg-muted)] text-[15px] sm:text-[16px] max-w-lg leading-relaxed mb-8">
-              190 道真实类型挑战。在浏览器中写 TS 类型，服务端编译验证，逐级通关。
+              {total} 道真实类型挑战。在浏览器中写 TS 类型，服务端编译验证，逐级通关。
             </p>
 
             {/* CTAs — left-aligned */}
@@ -82,7 +58,7 @@ export default function Home() {
             {/* Stat row */}
             <div className="flex items-center gap-10 sm:gap-14 text-[13px]" style={{ color: 'var(--fg-muted)' }}>
               {[
-                { v: '190', l: '题目' },
+                { v: String(total), l: '题目' },
                 { v: '5', l: '难度等级' },
                 { v: '55+', l: '带讲解' },
                 { v: '0 依赖', l: '纯本地' },
@@ -156,7 +132,7 @@ export default function Home() {
           {/* Asymmetric layout: 2 + 1 */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             {[
-              { num: '01', title: '选一道题', desc: '190 道题按难度分级，搜索、筛选、收藏，快速找到想练的。' },
+              { num: '01', title: '选一道题', desc: `${total} 道题按难度分级，搜索、筛选、收藏，快速找到想练的。` },
               { num: '02', title: '写出答案', desc: '在线代码编辑器里写 TS 类型实现，自动保存，随时回来继续。' },
             ].map(s => (
               <div key={s.num} className="p-5 rounded-xl"
@@ -241,7 +217,7 @@ export default function Home() {
               准备好了吗？
             </h2>
             <p className="text-[14px] mb-6" style={{ color: 'var(--fg-muted)' }}>
-              190 道题，从 Hello World 到 UnionToIntersection。练出来的类型功底。
+              {total} 道题，从 Hello World 到 UnionToIntersection。练出来的类型功底。
             </p>
             <Link href="/challenges"
               className="inline-flex items-center gap-2 px-6 py-3 rounded-lg text-[14px] font-medium text-white no-underline transition-colors hover:opacity-90"
