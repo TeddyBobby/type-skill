@@ -5,12 +5,23 @@ import Link from 'next/link'
 import { Header } from '@/components/header'
 import { CodeEditor } from '@/components/code-editor'
 import { TestResults } from '@/components/test-results'
-import { getChallengeMeta, getAdjacentChallenges, DIFFICULTY_LABELS } from '@/lib/challenges'
+import { DIFFICULTY_LABELS } from '@/lib/difficulty'
 import { getSavedCode, saveCode, markChallengeCompleted, isChallengeCompleted, isBookmarked, toggleBookmark, getNote, saveNote } from '@/lib/storage'
-import type { CheckResponse, ChallengeSolution } from '@/lib/types'
+import type { CheckResponse, ChallengeSolution, ChallengeMeta } from '@/lib/types'
 
-export function ChallengeClient({ id }: { id: string }) {
-  const meta = getChallengeMeta(id)
+interface ChallengeNav {
+  id: string
+  titleCN: string
+}
+
+interface ChallengeClientProps {
+  id: string
+  meta: ChallengeMeta | null
+  prev: ChallengeNav | null
+  next: ChallengeNav | null
+}
+
+export function ChallengeClient({ id, meta, prev: prevChallenge, next: nextChallenge }: ChallengeClientProps) {
 
   const [code, setCode] = useState('')
   const [initialCode, setInitialCode] = useState('')
@@ -113,8 +124,6 @@ export function ChallengeClient({ id }: { id: string }) {
   }
 
   if (!meta) return <><Header /><main className="max-w-4xl mx-auto px-4 py-20 text-center"><p className="text-[var(--fg-muted)]">题目不存在</p><Link href="/" className="text-[var(--accent)] mt-4 inline-block text-[13px]">← 返回</Link></main></>
-
-  const { prev: prevChallenge, next: nextChallenge } = getAdjacentChallenges(meta.id)
 
   return (
     <>

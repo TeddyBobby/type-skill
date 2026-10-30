@@ -3,7 +3,8 @@
 import { useState, useMemo, useEffect } from 'react'
 import { Header } from '@/components/header'
 import { ChallengeCard } from '@/components/challenge-card'
-import { getAllChallenges, DIFFICULTY_LABELS } from '@/lib/challenges'
+import { getAllChallenges } from '@/lib/challenges'
+import { DIFFICULTY_LABELS } from '@/lib/difficulty'
 import { getCompletedChallenges, getBookmarkedChallenges, toggleBookmark } from '@/lib/storage'
 
 const PAGE_SIZE = 15
