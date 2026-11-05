@@ -1330,7 +1330,7 @@
     ],
     "description": "Recursively flatten array up to depth times.",
     "example": "",
-    "hasSolution": false
+    "hasSolution": true
   },
   {
     "id": "3312",
@@ -1425,7 +1425,7 @@
     ],
     "description": "Implement type ```AllCombinations<S>``` that return all combinations of strings which use characters from ```S``` at most once.",
     "example": "",
-    "hasSolution": false
+    "hasSolution": true
   },
   {
     "id": "4425",
@@ -1713,7 +1713,7 @@
     ],
     "description": "Given an array of strings, do Permutation & Combination. It's also useful for the prop types like video [controlsList](https://developer.mozilla.org/en-US/docs/Web/API/HTMLMediaElement/controlsList)",
     "example": "",
-    "hasSolution": false
+    "hasSolution": true
   },
   {
     "id": "8804",
@@ -1740,7 +1740,7 @@
     ],
     "description": "Given an array of unique elements, return all possible subsequences.",
     "example": "",
-    "hasSolution": false
+    "hasSolution": true
   },
   {
     "id": "9142",
@@ -1820,7 +1820,7 @@
     ],
     "description": "You're required to implement a type-level parser to parse URL params string into an Union.",
     "example": "",
-    "hasSolution": false
+    "hasSolution": true
   },
   {
     "id": "9775",
@@ -2032,7 +2032,7 @@
     "tags": [],
     "description": "1. 把多个修饰键两两组合，但不可以出现相同的修饰键组合。 2. 提供的 `ModifierKeys` 中，前面的值比后面的值高，即 `cmd ctrl` 是可以的，但 `ctrl cmd` 是不允许的。",
     "example": "",
-    "hasSolution": false
+    "hasSolution": true
   },
   {
     "id": "21220",
@@ -2130,7 +2130,7 @@
     ],
     "description": "Given a number N, find the Nth triangular number, i.e. `1 + 2 + 3 + ... + N`",
     "example": "",
-    "hasSolution": false
+    "hasSolution": true
   },
   {
     "id": "27862",
@@ -2206,7 +2206,7 @@
     ],
     "description": "Implement a type that extract prop value to the interface. The type takes the two arguments. The output should be an object with the prop values. Prop value is object.",
     "example": "",
-    "hasSolution": false
+    "hasSolution": true
   },
   {
     "id": "29785",
@@ -2219,7 +2219,7 @@
     ],
     "description": "Implement a type`DeepOmit`, Like Utility types [Omit](https://www.typescriptlang.org/docs/handbook/utility-types.html#omittype-keys), A type takes two arguments.",
     "example": "",
-    "hasSolution": false
+    "hasSolution": true
   },
   {
     "id": "30178",
@@ -2260,7 +2260,7 @@
     ],
     "description": "Simulate the solution for the Tower of Hanoi puzzle. Your type should take the number of rings as input an return an array of steps to move the rings from tower A to tower B using tower C as additiona",
     "example": "",
-    "hasSolution": false
+    "hasSolution": true
   },
   {
     "id": "30575",
@@ -2443,7 +2443,7 @@
     "tags": [],
     "description": "Defined Partial Record",
     "example": "",
-    "hasSolution": false
+    "hasSolution": true
   },
   {
     "id": "35045",
@@ -2465,7 +2465,7 @@
     "tags": [],
     "description": "The trace of a square matrix is the sum of the elements on its main diagonal. However, it's difficult to calculate the sum with type system. To make things simple, let's return the elements on the mai",
     "example": "",
-    "hasSolution": false
+    "hasSolution": true
   },
   {
     "id": "35252",

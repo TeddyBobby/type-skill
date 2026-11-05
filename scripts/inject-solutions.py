@@ -12,61 +12,53 @@ PATH = os.path.join(DATA_DIR, 'challenges.json')
 SOLUTIONS_PATH = os.path.join(DATA_DIR, 'solutions.json')
 
 SOLUTIONS = {
-    "57": (
-        "type GetRequired<T> = { [K in keyof T as T[K] extends Required<T>[K] ? K : never]: T[K] }",
-        "1. 用 `Required<T>` 让所有属性变为必选\n2. 若 `T[K]` 与 `Required<T>[K]` 相同，说明 K 原本就是必选\n3. 用 `as` 键重映射过滤出必选键",
+    "3243": (
+        "type FlattenDepth<T extends any[], D extends number = 1, A extends any[] = []> = A['length'] extends D ? T : T extends [infer F, ...infer R] ? (F extends any[] ? [...FlattenDepth<F, D, [...A, 0]>, ...FlattenDepth<R, D, A>] : [F, ...FlattenDepth<R, D, A>]) : T",
+        "1. 用计数器 `A['length']` 记录已展开的层数，达到 D 即停止\\n2. 元素是数组则展开一层并让计数器 +1，否则原样保留\\n3. 递归处理首元素与剩余部分，展开结果用元组展开拼接",
     ),
-    "59": (
-        "type GetOptional<T> = { [K in keyof T as T[K] extends Required<T>[K] ? never : K]: T[K] }",
-        "1. 用 `Required<T>` 让所有属性变为必选\n2. 若 `T[K]` 与 `Required<T>[K]` 不同，说明 K 原本是可选\n3. 用 `as` 键重映射过滤出可选键",
+    "4260": (
+        "type StringToUnion<S extends string> = S extends `${infer F}${infer R}` ? F | StringToUnion<R> : never\ntype AllCombinations<S extends string, U extends string = StringToUnion<S>> = [U] extends [never] ? '' : '' | { [K in U]: `${K}${AllCombinations<'', Exclude<U, K>>}` }[U]",
+        "1. `StringToUnion` 把字符串逐字符拆成字符联合\\n2. 遍历每个字符 K 作为首字符，递归拼接剩余字符的全排列\\n3. `''` 作为空串兜底，`[U] extends [never]` 终止递归（避免对 never 分发）",
     ),
-    "89": (
-        "type RequiredKeys<T> = { [K in keyof T]-?: {} extends Pick<T, K> ? never : K }[keyof T]",
-        "1. `{} extends Pick<T, K>` 为真当且仅当 K 是可选键\n2. 遍历 `keyof T`，用 `-?` 移除可选性以便索引\n3. 必选键保留 K，可选键置为 `never`，最后 `[keyof T]` 收集联合",
+    "8767": (
+        "type Combination<T extends string[], All = T[number], Item = All> = Item extends string ? Item | `${Item} ${Combination<[], Exclude<All, Item>>}` : never",
+        "1. `T[number]` 取出所有单词的联合 All，`Item extends string` 对其逐成员分发\\n2. 每个 Item 要么单独出现，要么与剩余单词的组合用空格拼接\\n3. `Exclude<All, Item>` 保证同一单词不重复使用，递归直到为空",
     ),
-    "90": (
-        "type OptionalKeys<T> = { [K in keyof T]-?: {} extends Pick<T, K> ? K : never }[keyof T]",
-        "1. `{} extends Pick<T, K>` 为真当且仅当 K 是可选键\n2. 遍历 `keyof T`，用 `-?` 移除可选性以便索引\n3. 可选键保留 K，必选键置为 `never`，最后 `[keyof T]` 收集联合",
+    "8987": (
+        "type Subsequence<T extends any[]> = T extends [infer F, ...infer R] ? [F, ...Subsequence<R>] | Subsequence<R> : []",
+        "1. 对首元素 F 做两种选择：包含（`[F, ...Subsequence<R>]`）或不包含（`Subsequence<R>`）\\n2. 两者取并集即可枚举所有子序列\\n3. 空数组返回 `[]`，递归终止",
     ),
-    "223": (
-        "type IsAny<T> = 0 extends (1 & T) ? true : false",
-        "1. `1 & T`：若 T 是 `any`，交叉结果为 `any`；否则按 T 收缩\n2. `0 extends any` 为真，`0 extends 具体类型` 为假\n3. 因此只有 `any` 会让 `0 extends (1 & T)` 成立",
+    "9616": (
+        "type ParseUrlParams<T extends string> = T extends `${string}:${infer Param}` ? (Param extends `${infer Name}/${infer Rest}` ? Name | ParseUrlParams<Rest> : Param) : never",
+        "1. 用 `${string}:${infer Param}` 捕获第一个 `:param` 段\\n2. 若 Param 里还有 `/`，拆出参数名 Name 并对 Rest 递归解析\\n3. 不含冒号则返回 `never`，多个参数取并集",
     ),
-    "270": (
-        "type Get<T, K extends string> = K extends keyof T ? T[K] : K extends `${infer L}.${infer R}` ? L extends keyof T ? Get<T[L], R> : never : never",
-        "1. 先判断 K 是否是 T 的直接键（含 `'foo.baz'` 这种字面键）\n2. 否则按 `${infer L}.${infer R}` 拆成首段和剩余路径\n3. 递归对 `T[L]` 处理剩余路径 R",
+    "21106": (
+        "type Combs<T extends string[]> = T extends [infer F extends string, ...infer R extends string[]] ? `${F} ${R[number]}` | Combs<R> : never",
+        "1. 取首元素 F，与剩余每个元素用模板字面量拼成两两组合\\n2. 递归处理剩余数组，直到只剩一个元素\\n3. `R[number]` 取剩余元素联合，剩余为空时组合自然坍缩为 `never`",
     ),
-    "300": (
-        "type ToNumber<S extends string> = S extends `${infer N extends number}` ? N : never",
-        "1. 用 `${infer N extends number}` 尝试把字符串解析为数字字面量\n2. 解析成功返回 N，否则返回 `never`\n3. `'18@7_$%'` 这类非法数字无法匹配，得到 `never`",
+    "27152": (
+        "type Triangular<N extends number, I extends unknown[] = [], Sum extends unknown[] = []> = I['length'] extends N ? Sum['length'] : Triangular<N, [...I, unknown], [...Sum, ...I, unknown]>",
+        "1. 用元组长度模拟自然数，`I` 从 0 递增到 N\\n2. 每轮把长度等于 `I+1` 的元组 `[...I, unknown]` 追加进 `Sum`\\n3. I 到达 N 时返回 `Sum['length']`，即 1+2+…+N",
     ),
-    "399": (
-        "type FilterOut<T extends any[], F> = T extends [infer R, ...infer Rest] ? ([R] extends [F] ? FilterOut<Rest, F> : [R, ...FilterOut<Rest, F>]) : []",
-        "1. 用 `[R] extends [F]` 而非 `R extends F`，避免对联合类型分发\n2. 匹配到 F 的元素跳过，否则保留\n3. 递归处理剩余元素，直到元组为空",
+    "29650": (
+        "type ExtractToObject<T, U extends keyof T> = { [P in keyof (Omit<T, U> & T[U])]: (Omit<T, U> & T[U])[P] }",
+        "1. `Omit<T, U>` 去掉指定键，`T[U]` 取出该键的值\\n2. 两者交叉把嵌套对象「摊平」到顶层\\n3. 用映射类型 `{ [P in keyof ...]: ... }` 展平交叉类型，`Equal` 才能判等",
     ),
-    "847": (
-        "declare function join<D extends string>(delimiter: D): <P extends string[]>(...parts: P) => Join<D, P>\ntype Join<D extends string, P extends string[]> = P extends [infer F extends string, ...infer R extends string[]] ? (R extends [] ? F : `${F}${D}${Join<D, R>}`) : ''",
-        "1. `join(delimiter)` 返回一个接收任意字符串参数的函数\n2. `Join` 递归：单元素直接返回，多元素用 D 分隔拼接\n3. 空参数列表返回空字符串",
+    "29785": (
+        "type DeepOmit<T, K extends string> = K extends `${infer Head}.${infer Rest}` ? (Head extends keyof T ? { [P in keyof T]: P extends Head ? DeepOmit<T[P], Rest> : T[P] } : T) : (K extends keyof T ? { [P in keyof T as P extends K ? never : P]: T[P] } : T)",
+        "1. 路径含 `.` 时拆成 `Head` 和 `Rest`，对 `T[Head]` 递归删除 `Rest`\\n2. 末段键用 `as` 键重映射把目标键映射为 `never` 实现删除\\n3. 键不存在时原样返回 T（幂等）",
     ),
-    "2828": (
-        "type ClassPublicKeys<T> = keyof T",
-        "1. `keyof` 只会取到 public 成员\n2. protected 和 private 成员对 `keyof` 不可见\n3. 因此直接 `keyof T` 即得到所有公有键",
+    "30430": (
+        "type BuildArr<N extends number, A extends unknown[] = []> = A['length'] extends N ? A : BuildArr<N, [...A, unknown]>\ntype Dec<N extends number> = BuildArr<N> extends [...infer Rest, unknown] ? Rest['length'] : 0\ntype Hanoi<N extends number, From = 'A', To = 'B', Intermediate = 'C'> = N extends 0 ? [] : N extends 1 ? [[From, To]] : [...Hanoi<Dec<N>, From, Intermediate, To>, [From, To], ...Hanoi<Dec<N>, Intermediate, To, From>]",
+        "1. `Dec` 用元组去掉末元素实现 N-1（类型层没有减法）\\n2. 经典汉诺塔递归：先把 N-1 片移到中转柱，再移最大片，最后把 N-1 片移到目标柱\\n3. 移动用 `[From, To]` 元组表示，拼接成完整移动序列；N=0 返回空、N=1 直接一步",
     ),
-    "2857": (
-        "type IsRequiredKey<T, K extends keyof T> = [K] extends [keyof { [P in keyof T as T[P] extends Required<T>[P] ? P : never]: T[P] }] ? true : false",
-        "1. 先用键重映射算出所有必选键的联合\n2. 用 `[K] extends [...]` 避免对联合 K 分发\n3. K 整体是必选键的子集才返回 true",
+    "34857": (
+        "type Merge<A, B> = B extends any ? { [P in keyof A | keyof B]: P extends keyof B ? B[P] : P extends keyof A ? A[P] : never } : never\ntype DefinedPartial<T, U extends keyof T = keyof T> = [U] extends [never] ? never : { [K in U]: { [P in K]: T[P] } | Merge<{ [P in K]: T[P] }, DefinedPartial<T, Exclude<U, K>>> }[U]",
+        "1. 每个键 K 都有「单独入选」与「和其余子集合并」两种选择\\n2. `Merge` 把两个对象合并成扁平对象（交叉类型 `Equal` 判不等，需展开）\\n3. `[U] extends [never]` 终止递归，遍历 `keyof T` 收集所有非空子集并集",
     ),
-    "2949": (
-        "type ObjectFromEntries<T extends [PropertyKey, unknown]> = { [K in T[0]]: T extends [K, infer V] ? V : never }",
-        "1. 用 `T[0]` 提取所有键组成映射键\n2. 对每个键 K，在 T 中查找匹配的元组并 `infer` 出值 V\n3. 生成 `{ 键: 值 }` 的对象类型",
-    ),
-    "4037": (
-        "type IsPalindrome<T extends string | number> = `${T}` extends Reverse<`${T}`> ? true : false\ntype Reverse<S extends string> = S extends `${infer F}${infer R}` ? `${Reverse<R>}${F}` : ''",
-        "1. 用模板字面量把 T 统一转为字符串\n2. `Reverse` 递归反转字符串\n3. 正反相等即回文",
-    ),
-    "5181": (
-        "type MutableKeys<T> = { [K in keyof T]-?: Equal<{ [P in K]: T[P] }, { -readonly [P in K]: T[P] }> extends true ? K : never }[keyof T]",
-        "1. `{ [P in K]: T[P] }` 保留 readonly，`{ -readonly ... }` 移除 readonly\n2. 两者相等说明 K 原本不是 readonly，即可变键\n3. 用 `Equal` 判断相等，`[keyof T]` 收集联合",
+    "35191": (
+        "type Trace<T extends any[][], Acc extends unknown[] = []> = T extends [infer Row extends any[], ...infer Rows extends any[][]] ? Row[Acc['length']] | Trace<Rows, [...Acc, unknown]> : never",
+        "1. 用 `Acc['length']` 记录当前行号（也是对角线的列下标）\\n2. 取第 i 行第 i 列元素 `Row[Acc['length']]`\\n3. 递归处理剩余行，`Acc` 每轮递增，所有对角线元素取并集",
     ),
 }
 
