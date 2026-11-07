@@ -2048,7 +2048,7 @@
     ],
     "description": "Given a generic tuple type `T extends unknown[]`, write a type which produces all permutations of `T` as a union.",
     "example": "",
-    "hasSolution": false
+    "hasSolution": true
   },
   {
     "id": "25170",
@@ -2100,7 +2100,7 @@
     ],
     "description": "Implement the generic type JSONSchema2TS which will return the TypeScript type corresponding to the given JSON schema.",
     "example": "",
-    "hasSolution": false
+    "hasSolution": true
   },
   {
     "id": "27133",
@@ -2115,7 +2115,7 @@
     ],
     "description": "Given a number, your type should return its square.",
     "example": "",
-    "hasSolution": false
+    "hasSolution": true
   },
   {
     "id": "27152",
@@ -2285,7 +2285,7 @@
     ],
     "description": "Given a number N, construct the Pascal's triangle with N rows. [Wikipedia](https://en.wikipedia.org/wiki/Pascal%27s_triangle)",
     "example": "",
-    "hasSolution": false
+    "hasSolution": true
   },
   {
     "id": "30970",
@@ -2296,7 +2296,7 @@
     "tags": [],
     "description": "Sometimes you may want to determine whether a string literal is a definite type. For example, when you want to check whether the type specified as a class identifier is a fixed string literal type.",
     "example": "",
-    "hasSolution": false
+    "hasSolution": true
   },
   {
     "id": "31447",

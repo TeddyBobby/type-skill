@@ -522,5 +522,25 @@
   "35191": {
     "solutionCode": "type Trace<T extends any[][], Acc extends unknown[] = []> = T extends [infer Row extends any[], ...infer Rows extends any[][]] ? Row[Acc['length']] | Trace<Rows, [...Acc, unknown]> : never",
     "solutionExplanation": "1. 用 `Acc['length']` 记录当前行号（也是对角线的列下标）\\n2. 取第 i 行第 i 列元素 `Row[Acc['length']]`\\n3. 递归处理剩余行，`Acc` 每轮递增，所有对角线元素取并集"
+  },
+  "21220": {
+    "solutionCode": "type Insert<X, T extends unknown[]> = T extends [infer F, ...infer R] ? [X, ...T] | [F, ...Insert<X, R>] : [X]\ntype PermutationsOfTuple<T extends unknown[]> = T extends [infer F, ...infer R] ? Insert<F, PermutationsOfTuple<R>> : []",
+    "solutionExplanation": "1. `Insert<X, T>` 把元素 X 插入到元组 T 的每个空隙，产生所有插入结果\n2. 递归拆出首元素 F，先对剩余 R 求全排列，再把 F 插入每个排列的所有位置\n3. 空元组返回 `[]`，单元素元组 `Insert<F, []>` 只得到 `[F]`"
+  },
+  "30958": {
+    "solutionCode": "type Tuple<N extends number, R extends unknown[] = []> = R['length'] extends N ? R : Tuple<N, [...R, unknown]>\ntype Sum<A extends number, B extends number> = [...Tuple<A>, ...Tuple<B>]['length']\ntype SumPairs<T extends number[]> = T extends [infer A extends number, infer B extends number, ...infer R extends number[]] ? [Sum<A, B>, ...SumPairs<[B, ...R]>] : []\ntype NextRow<T extends number[]> = [1, ...SumPairs<T>, 1]\ntype Last<T extends any[]> = T extends [...infer _, infer L] ? L : never\ntype Pascal<N extends number, R extends number[][] = [[1]]> = R['length'] extends N ? R : Pascal<N, [...R, NextRow<Last<R>>]>",
+    "solutionExplanation": "1. 用元组长度模拟加法：`Sum` 拼接两个元组取 `['length']`\n2. `SumPairs` 对相邻两元素求和，`NextRow` 在两端补 1 得到下一行\n3. `Pascal` 累加行数，用 `Last` 取当前最后一行生成新行，直到行数达到 N"
+  },
+  "26401": {
+    "solutionCode": "type Primitive<T> = T extends 'string' ? string : T extends 'number' ? number : T extends 'boolean' ? boolean : never\ntype ReqOf<T> = T extends { required: infer R } ? (R extends readonly unknown[] ? R[number] : never) : never\ntype Flatten<T> = { [K in keyof T]: T[K] }\ntype JSONSchema2TS<T> =\n  T extends { enum: (infer E)[] }\n    ? E\n    : T extends { type: 'object' }\n      ? T extends { properties: infer P }\n        ? [keyof P] extends [never]\n          ? {}\n          : Flatten<{ [K in keyof P as K extends ReqOf<T> ? K : never]: JSONSchema2TS<P[K]> } & { [K in keyof P as K extends ReqOf<T> ? never : K]?: JSONSchema2TS<P[K]> }>\n        : Record<string, unknown>\n      : T extends { type: 'array' }\n        ? T extends { items: infer I }\n          ? JSONSchema2TS<I>[]\n          : unknown[]\n        : T extends { type: infer Ty }\n          ? Primitive<Ty>\n          : never",
+    "solutionExplanation": "1. `enum` 优先匹配，直接返回枚举值联合\n2. object 分支：无 `properties` 返回 `Record<string, unknown>`，空 `properties` 返回 `{}`；有 `properties` 时把 `required` 里的键设为必填、其余可选\n3. 用 `Flatten`（同态映射类型）展开 `&` 交叉并保留 `?` 可选性，`Equal` 才能判等"
+  },
+  "30970": {
+    "solutionCode": "type IsUnion<T, U = T> = [T] extends [never] ? false : T extends T ? [U] extends [T] ? false : true : false\ntype IsStringNumberBigint<T> = T extends `${infer A}${string}` ? ('0' | '1' extends A ? true : false) : true\ntype IsFixedStringLiteralType<S extends string> =\n  [S] extends [never]\n    ? false\n    : IsUnion<S> extends true\n      ? false\n      : S extends `${infer F}${infer Rest extends string}`\n        ? IsStringNumberBigint<F> extends true\n          ? false\n          : Rest extends ''\n            ? true\n            : IsFixedStringLiteralType<Rest>\n        : false",
+    "solutionExplanation": "1. 先排除 `never` 与联合类型：`IsUnion` 用 `U = T` 默认值，若发生分发则 `[U] extends [T]` 为假\n2. 逐字符拆分：若首字符 F 是 `string`/`number`/`bigint`/`boolean` 这类宽类型（`IsStringNumberBigint` 判断），说明是模板字面量模式，返回 false\n3. 否则递归检查剩余部分，直到 Rest 为空才判定为「固定的字符串字面量」"
+  },
+  "27133": {
+    "solutionCode": "type Reverse<A extends string | number | bigint, _Result extends string = ''> = `${A}` extends `${infer AH}${infer AT}` ? Reverse<AT, `${AH}${_Result}`> : _Result\ntype DigsNext = { '0': '1', '1': '2', '2': '3', '3': '4', '4': '5', '5': '6', '6': '7', '7': '8', '8': '9' }\ntype AddOne<A extends string | number> = `${A}` extends `${infer AH}${infer AT}` ? AH extends '9' ? `0${AddOne<AT>}` : `${DigsNext[AH & keyof DigsNext]}${AT}` : '1'\ntype Sum<A extends number | string, B extends number, _Counter extends 0[] = []> = _Counter['length'] extends B ? A : Sum<AddOne<A>, B, [..._Counter, 0]>\ntype TinySum<A extends number | string, B extends number> = Reverse<Sum<Reverse<A>, B>>\ntype RemoveMinus<N extends number> = `${N}` extends `-${infer I extends number}` ? I : N\ntype Square<N extends number, _PN extends number = RemoveMinus<N>, _N extends number = RemoveMinus<N>, _Counter extends 0[] = [0, 0], SumN extends number = `${TinySum<_PN, _N>}` extends `${infer I extends number}` ? I : never> = _PN extends 0 | 1 ? _PN : _Counter['length'] extends _N ? SumN : Square<0, SumN, _N, [..._Counter, 0]>",
+    "solutionExplanation": "1. 结果最高达 10201，元组长度会被 TS 截断，改用字符串数字运算：`AddOne` 逐位进位 +1，`Sum` 用计数器累加\n2. 平方用 `n² = 2n + n×(n-2)` 递推：`TinySum` 每轮把当前和加上 n，计数器从 2 递增到 n\n3. `RemoveMinus` 处理负数（取绝对值），0/1 直接返回"
   }
 }
